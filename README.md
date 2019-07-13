@@ -17,7 +17,7 @@ sheet = Sheet(
             Row(
                 children=[
                     Cell(
-                        "first",
+                        "hello",
                         offset=2,
                         grow=True,
                         bg_color="yellow",

@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "poi"
+version = "0.1.0"
+description = ""
+authors = ["Ryan Wang <hwwangwang@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+xlsxwriter = "^1.1"
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+mypy = "^0.700"
+flake8 = "^3.6"
+black = {version = "^19.3-b0",allows-prereleases = true}
+
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.black]
+target-version = "py37"
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+

@@ -1,6 +1,6 @@
 from io import BytesIO
 
-import xlsxwriter as xlsxwriter
+import xlsxwriter
 
 
 class Writer:

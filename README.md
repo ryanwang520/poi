@@ -34,5 +34,30 @@ sheet.write('hello.xlsx')
 
 See, it's pretty simple and clear.
 
+Sample for rendering a simple table
+
+```python
+class Record(NamedTuple):
+    name: str
+    desc: str
+    remark: str
+
+data = [
+    Record(name=f"name {i}", desc=f"desc {i}", remark=f"remark {i}") for i in range(3)]
+headers = [('name', '名称'), ('desc', '描述'), ('remark', '备注')]
+sheet = Sheet(root=
+Table(
+    data=data,
+    headers=headers,
+    cell_width=20,
+    cell_style={
+        "bg_color: yellow": lambda record, attr: attr == 'name' and record.name == 'name 1'
+    },
+    date_format="yyyy-mm-dd",
+    align="center",
+    border=1,
+))
+```
+
 
 

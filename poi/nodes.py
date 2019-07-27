@@ -117,7 +117,7 @@ class Box:
         raise NotImplementedError
 
     def assert_children_bound(self):
-        assert all(child.parent for child in self.children)
+        assert all(child.instance for child in self.children)
 
 
 class Row(Box):
@@ -134,7 +134,26 @@ class Row(Box):
         if not child.rowspan:
             child.rowspan = self.rowspan
         if child.grow:
-            child.colspan = self.colspan - self.offset
+            if self.colspan:
+                child.colspan = self.colspan - self.offset
+            else:
+
+                def col_determinable(box):
+                    try:
+                        return box.cols
+                    except AssertionError:
+                        return False
+
+                neighbor_with_cols = [
+                    child
+                    for child in self.instance.parent.box.children
+                    if col_determinable(child)
+                ]
+                if neighbor_with_cols:
+                    child.colspan = (
+                        max(neighor.cols for neighor in neighbor_with_cols)
+                        - self.offset
+                    )
 
     @property
     def cols(self):
@@ -161,7 +180,26 @@ class Col(Box):
         if not child.colspan:
             child.colspan = self.colspan
         if child.grow:
-            child.rowspan = self.rowspan - self.offset
+            if self.rowspan:
+                child.rowspan = self.rowspan - self.offset
+            else:
+
+                def row_determinable(box):
+                    try:
+                        return box.rows
+                    except AssertionError:
+                        return False
+
+                neighbor_with_rows = [
+                    child
+                    for child in self.instance.parent.box.children
+                    if row_determinable(child)
+                ]
+                if neighbor_with_rows:
+                    child.rowspan = (
+                        max(neighor.rows for neighor in neighbor_with_rows)
+                        - self.offset
+                    )
 
     def process_child(self, child, current_row, current_col):
         child_node = BoxInstance(
@@ -189,8 +227,10 @@ class Col(Box):
 
 class Cell(Box):
     def __init__(self, value, *args, **kwargs):
+        height = kwargs.pop("height", None)
         super().__init__(*args, **kwargs)
         self.value = value
+        self.height = height
 
     @property
     def cols(self):

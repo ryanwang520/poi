@@ -57,6 +57,8 @@ def writer_visitor(writer):
     def _(self: Cell):
         colspan = self.colspan or 1
         rowspan = self.rowspan or 1
+        if rowspan == 1 and self.height:
+            writer.worksheet.set_row(self.row, self.height)
         if colspan == 1 and rowspan == 1:
             writer.write(self.row, self.col, self.value, self.cell_format)
         else:

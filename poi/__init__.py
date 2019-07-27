@@ -1,5 +1,5 @@
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
-from poi.sheet import Sheet
-from poi.nodes import Cell, Box, Col, Row, Table
+from poi.sheet import Sheet  # noqa
+from poi.nodes import Cell, Box, Col, Row, Table  # noqa

@@ -23,3 +23,10 @@ class Sheet:
 
     def print(self):
         self.root.accept(print_visitor)
+
+    def to_bytes_io(self):
+        writer = Writer()
+        visitor = writer_visitor(writer)
+        self.root.accept(visitor)
+        writer.close()
+        return writer.output

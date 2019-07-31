@@ -46,14 +46,14 @@ data = [
     Record(name=f"name {i}", desc=f"desc {i}", remark=f"remark {i}")
     for i in range(3)
 ]
-headers = [("name", "名称"), ("desc", "描述"), ("remark", "备注")]
+columns = [("name", "名称"), ("desc", "描述"), ("remark", "备注")]
 sheet = Sheet(
     root=Table(
         data=data,
-        headers=headers,
+        columns=columns,
         cell_width=20,
         cell_style={
-            "bg_color: yellow": lambda record, attr: attr == "name"
+            "bg_color: yellow": lambda record, col: col.attr == "name"
             and record.name == "name 1"
         },
         date_format="yyyy-mm-dd",

@@ -1,8 +1,9 @@
 from functools import singledispatch
 import datetime
 import re
+from inspect import signature
 
-from poi.nodes import Row, Col, Table, Cell
+from ..nodes import Row, Col, Table, Cell
 
 
 def writer_visitor(writer):
@@ -30,23 +31,32 @@ def writer_visitor(writer):
             return obj
 
         row, col = self.row, self.col
-
-        if self.cell_width:
-            writer.worksheet.set_column(
-                self.col, self.col + len(self.headers), self.cell_width
-            )
-        for i, header in enumerate(self.headers):
-            writer.write(row, col + i, header[1], self.cell_format)
+        if self.cell_height:
+            for i in range(len(self.data) + 1):
+                writer.worksheet.set_row(self.row + i, self.cell_height)
+        for i, column in enumerate(self.columns):
+            width = column.width or self.cell_width
+            if width:
+                writer.worksheet.set_column(self.col + i, self.col + i, width)
+            writer.write(row, col + i, column.title, self.cell_format)
 
         for i, item in enumerate(self.data):
 
-            for j, (attr_name, display_name) in enumerate(self.headers):
+            for j, column in enumerate(self.columns):
                 fmt = {}
                 for style, condition in self.cell_style.items():
-                    if condition(item, attr_name):
+                    if condition(item, column):
                         k, v = re.split(r"\s*:\s*", style)
                         fmt[k] = v
-                val = get_obj_attr(item, attr_name)
+                if column.attr:
+                    val = get_obj_attr(item, column.attr)
+                else:
+                    sig = signature(column.render)
+                    if len(sig.parameters) == 1:
+                        val = column.render(item)
+                    else:
+                        val = column.render(item, column)
+
                 if self.date_format and isinstance(
                     val, (datetime.date, datetime.datetime)
                 ):

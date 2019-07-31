@@ -1,6 +1,6 @@
 from functools import singledispatch
 
-from poi.nodes import Col, Row, Table, Cell
+from ..nodes import Col, Row, Table, Cell
 
 
 @singledispatch

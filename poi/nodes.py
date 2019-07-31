@@ -1,6 +1,6 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, NamedTuple, Callable
 
-from poi.helpers import Direction
+from .helpers import Direction
 
 
 class BoxInstance:
@@ -247,12 +247,20 @@ class Image(Cell):
     pass
 
 
+class Column(NamedTuple):
+    title: str
+    attr: str = None
+    render: Callable = None
+    width: int = None
+
+
 class Table(Box):
     def __init__(
         self,
         data,
-        headers,
+        columns,
         cell_width=None,
+        cell_height=None,
         cell_style=None,
         date_format=None,
         *args,
@@ -260,11 +268,24 @@ class Table(Box):
     ):
         super().__init__(*args, **kwargs)
         self.data = data
-        self.headers = headers
         self.cell_width = cell_width
+        self.cell_height = cell_height
+
         self.cell_style = cell_style or {}
         self.date_format = date_format
-        self.attr_map = {name: val for name, val in headers}
+        self.columns = []
+        for col in columns:
+            assert isinstance(col, (tuple, dict))
+            if isinstance(col, tuple):
+                item = Column(attr=col[0], title=col[1])
+            else:
+                item = Column(
+                    attr=col.get("attr"),
+                    title=col["title"],
+                    render=col.get("render"),
+                    width=col.get("width"),
+                )
+            self.columns.append(item)
 
     @property
     def rows(self):
@@ -272,4 +293,4 @@ class Table(Box):
 
     @property
     def cols(self,):
-        return len(self.headers)
+        return len(self.columns)

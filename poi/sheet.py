@@ -1,7 +1,7 @@
-from poi.nodes import Box, BoxInstance
-from poi.visitors.printer import print_visitor
-from poi.visitors.writer import writer_visitor
-from poi.writer import Writer
+from .nodes import Box, BoxInstance
+from .visitors.printer import print_visitor
+from .visitors.writer import writer_visitor
+from .writer import Writer
 
 
 class Sheet:
@@ -23,3 +23,10 @@ class Sheet:
 
     def print(self):
         self.root.accept(print_visitor)
+
+    def to_bytes_io(self):
+        writer = Writer()
+        visitor = writer_visitor(writer)
+        self.root.accept(visitor)
+        writer.close()
+        return writer.output

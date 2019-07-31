@@ -1,7 +1,7 @@
-from poi.nodes import Box, BoxInstance
-from poi.visitors.printer import print_visitor
-from poi.visitors.writer import writer_visitor
-from poi.writer import Writer
+from .nodes import Box, BoxInstance
+from .visitors.printer import print_visitor
+from .visitors.writer import writer_visitor
+from .writer import Writer
 
 
 class Sheet:

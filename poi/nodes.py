@@ -1,6 +1,6 @@
 from typing import Optional, Tuple, NamedTuple, Callable
 
-from poi.helpers import Direction
+from .helpers import Direction
 
 
 class BoxInstance:

@@ -3,7 +3,7 @@ import datetime
 import re
 from inspect import signature
 
-from poi.nodes import Row, Col, Table, Cell
+from ..nodes import Row, Col, Table, Cell
 
 
 def writer_visitor(writer):

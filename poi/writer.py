@@ -13,9 +13,9 @@ class Writer:
 
     def close(self):
         self.workbook.close()
+        self.output.seek(0)
 
     def read(self):
-        self.output.seek(0)
         return self.output.read()
 
     def _calc_format(self, cell_format):

@@ -44,10 +44,16 @@ def writer_visitor(writer):
 
             for j, column in enumerate(self.columns):
                 fmt = {}
-                for style, condition in self.cell_style.items():
-                    if condition(item, column):
-                        k, v = re.split(r"\s*:\s*", style)
-                        fmt[k] = v
+                for styles, condition in self.cell_style.items():
+                    sig = signature(condition)
+                    if (
+                        condition(item, column)
+                        if len(sig.parameters) == 2
+                        else condition(item)
+                    ):
+                        for style in styles.split(";"):
+                            k, v = re.split(r"\s*:\s*", style.strip())
+                            fmt[k] = v
                 if column.attr:
                     val = get_obj_attr(item, column.attr)
                 else:

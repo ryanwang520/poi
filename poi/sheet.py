@@ -5,9 +5,19 @@ from .writer import Writer
 
 
 class Sheet:
-    def __init__(self, root: Box):
-        BoxInstance(root, 0, 0, None)
+    def __init__(self, root: Box, start_row=0, start_col=0):
+        BoxInstance(root, start_row, start_col, None)
         self.root = root
+
+    @classmethod
+    def attach_to_exist_worksheet(
+        cls, workbook, worksheet, root, start_row=0, start_col=0
+    ):
+        sheet = cls(root, start_row, start_col)
+        writer = Writer(workbook, worksheet)
+        visitor = writer_visitor(writer)
+        sheet.root.accept(visitor)
+        return writer
 
     def write_to_bytesio(self) -> Writer:
         writer = Writer()

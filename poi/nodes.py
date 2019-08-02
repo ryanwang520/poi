@@ -1,3 +1,4 @@
+from collections import Iterable
 from typing import Optional, Tuple, NamedTuple, Callable
 
 from .helpers import Direction
@@ -76,7 +77,18 @@ class Box:
         self.colspan = colspan
         self.offset = offset
         self.grow = grow
-        self.children = children or []
+
+        def flatten(items):
+            """Yield items from any nested iterable"""
+            for x in items:
+                if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+                    for sub_x in flatten(x):
+                        yield sub_x
+                else:
+                    yield x
+
+        children = list(flatten(children or []))
+        self.children = children
         for child in self.children:
             child.parent = self
         self.styles = kwargs

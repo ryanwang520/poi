@@ -4,18 +4,26 @@ import xlsxwriter
 
 
 class Writer:
-    def __init__(self, global_format=None):
-        self.output = BytesIO()
-        self.workbook = xlsxwriter.Workbook(self.output)
-        self.worksheet = self.workbook.add_worksheet()
+    def __init__(self, workbook=None, worksheet=None, global_format=None):
+        if not (workbook and worksheet):
+            self.output = BytesIO()
+            self.workbook = xlsxwriter.Workbook(self.output)
+            self.worksheet = self.workbook.add_worksheet()
+        else:
+            self.output = None
+            self.workbook = workbook
+            self.worksheet = worksheet
         self.global_format = self.workbook.add_format(global_format)
         self.global_format_dict = global_format or {}
 
     def close(self):
         self.workbook.close()
-        self.output.seek(0)
+        if self.output:
+            self.output.seek(0)
 
     def read(self):
+        if not self.output:
+            raise ValueError("cannot read from attached worksheet")
         return self.output.read()
 
     def _calc_format(self, cell_format):

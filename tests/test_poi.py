@@ -6,7 +6,7 @@ from poi import __version__, Sheet, Col, Row, Cell, Table
 
 
 def test_version():
-    assert __version__ == "0.1.3"
+    assert __version__ == "0.1.4"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):

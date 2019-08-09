@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poi"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = ["Ryan Wang <hwwangwang@gmail.com>"]
 

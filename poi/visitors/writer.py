@@ -62,11 +62,13 @@ def writer_visitor(writer):
                         val = column.render(item)
                     else:
                         val = column.render(item, column)
+                if isinstance(val, datetime.datetime):
+                    fmt["num_format"] = self.datetime_format or "yyyy-mm-dd hh:mm:ss"
+                if isinstance(val, datetime.date):
+                    fmt["num_format"] = self.date_format or "yyyy-mm-dd"
+                if isinstance(val, datetime.time):
+                    fmt["num_format"] = self.time_format or "hh:mm:ss"
 
-                if self.date_format and isinstance(
-                    val, (datetime.date, datetime.datetime)
-                ):
-                    fmt["num_format"] = self.date_format
                 writer.write(row + i + 1, col + j, val, {**self.cell_format, **fmt})
 
     @visitor.register

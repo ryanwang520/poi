@@ -274,7 +274,9 @@ class Table(Box):
         cell_width=None,
         cell_height=None,
         cell_style=None,
+        datetime_format=None,
         date_format=None,
+        time_format=None,
         *args,
         **kwargs,
     ):
@@ -285,6 +287,8 @@ class Table(Box):
 
         self.cell_style = cell_style or {}
         self.date_format = date_format
+        self.datetime_format = datetime_format
+        self.time_format = time_format
         self.columns = []
         for col in columns:
             assert isinstance(col, (tuple, dict))

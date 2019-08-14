@@ -1,6 +1,16 @@
-from collections.abc import Iterable
-from typing import Optional, Tuple, NamedTuple, Callable, Dict, Any, Union, List
-from mypy_extensions import TypedDict
+from collections import abc
+from typing import (
+    Optional,
+    Tuple,
+    NamedTuple,
+    Callable,
+    Dict,
+    Union,
+    TypeVar,
+    Generic,
+    Iterable,
+    Sequence,
+)
 
 from .helpers import Direction
 
@@ -72,7 +82,7 @@ class Box:
 
     def __init__(
         self,
-        children: List["Box"] = None,
+        children: Iterable["Box"] = None,
         rowspan: int = None,
         colspan: int = None,
         offset: int = 0,
@@ -88,7 +98,7 @@ class Box:
         def flatten(items):
             """Yield items from any nested iterable"""
             for x in items:
-                if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+                if isinstance(x, abc.Iterable) and not isinstance(x, (str, bytes)):
                     for sub_x in flatten(x):
                         yield sub_x
                 else:
@@ -273,29 +283,21 @@ class Column(NamedTuple):
     width: Optional[int] = None
 
 
-Render = Callable[[Any], Optional[Column]]
-
-ColumnDict = TypedDict(
-    "ColumnDict",
-    {
-        "width": Optional[int],
-        "title": str,
-        "attr": Optional[str],
-        "render": Optional[Render],
-    },
-)
+T = TypeVar("T")
 
 
-class Table(Box):
-    columns: List[Column]
+class Table(Box, Generic[T]):
+    columns: Iterable[Column]
 
     def __init__(
         self,
-        data: List[Any],
-        columns: List[Union[Tuple[str, str], ColumnDict]],
+        data: Sequence[T],
+        columns: Sequence,
         cell_width: int = None,
         cell_height: int = None,
-        cell_style: Dict[str, Callable[[Any, Optional[Column]], bool]] = None,
+        cell_style: Dict[
+            str, Union[Callable[[T, Column], bool], Callable[[T], bool]]
+        ] = None,
         datetime_format: str = None,
         date_format: str = None,
         time_format: str = None,

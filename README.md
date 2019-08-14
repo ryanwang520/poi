@@ -1,7 +1,6 @@
 # Poi: Make creating Excel XLSX files fun again.
 
-.. image:: https://travis-ci.org/baoshishu/poi.svg?branch=master
-   :target: https://travis-ci.org/baoshishu/poi
+![travis](https://travis-ci.org/baoshishu/poi.svg?branch=master)
 
 Poi helps you write Excel sheet in a declarative way, ensuring you have a better Excel writing experience.
 

@@ -1,5 +1,6 @@
 from collections.abc import Iterable
-from typing import Optional, Tuple, NamedTuple, Callable
+from typing import Optional, Tuple, NamedTuple, Callable, Dict, Any, Union, List
+from mypy_extensions import TypedDict
 
 from .helpers import Direction
 
@@ -70,7 +71,13 @@ class Box:
         return self.direction == Direction.VERTICAL
 
     def __init__(
-        self, children=None, rowspan=None, colspan=None, offset=0, grow=False, **kwargs
+        self,
+        children: Iterable["Box"] = None,
+        rowspan: int = None,
+        colspan: int = None,
+        offset: int = 0,
+        grow: bool = False,
+        **kwargs,
     ):
         self.parent = None
         self.rowspan = rowspan
@@ -238,7 +245,7 @@ class Col(Box):
 
 
 class Cell(Box):
-    def __init__(self, value, *args, **kwargs):
+    def __init__(self, value: str, *args, **kwargs):
         height = kwargs.pop("height", None)
         super().__init__(*args, **kwargs)
         self.value = value
@@ -261,22 +268,37 @@ class Image(Cell):
 
 class Column(NamedTuple):
     title: str
-    attr: str = None
-    render: Callable = None
-    width: int = None
+    attr: Optional[str] = None
+    render: Optional[Callable] = None
+    width: Optional[int] = None
+
+
+Render = Callable[[Any], Optional[Column]]
+
+ColumnDict = TypedDict(
+    "ColumnDict",
+    {
+        "width": Optional[int],
+        "title": str,
+        "attr": Optional[str],
+        "render": Optional[Render],
+    },
+)
 
 
 class Table(Box):
+    columns: List[Column]
+
     def __init__(
         self,
-        data,
-        columns,
-        cell_width=None,
-        cell_height=None,
-        cell_style=None,
-        datetime_format=None,
-        date_format=None,
-        time_format=None,
+        data: List[Any],
+        columns: Iterable[Union[Tuple[str, str], ColumnDict]],
+        cell_width: int = None,
+        cell_height: int = None,
+        cell_style: Dict[str, Callable[[Any, Optional[Column]], bool]] = None,
+        datetime_format: str = None,
+        date_format: str = None,
+        time_format: str = None,
         *args,
         **kwargs,
     ):

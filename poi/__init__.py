@@ -1,4 +1,4 @@
-__version__ = "0.1.6"
+__version__ = "0.1.10"
 
 
 from .sheet import Sheet  # noqa

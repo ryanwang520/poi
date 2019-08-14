@@ -15,18 +15,18 @@ def _(self: Col):
         print_visitor(child)
 
 
-@print_visitor.register
+@print_visitor.register  # type: ignore
 def _(self: Row):
     print(f"write Row at {self.row}:{self.col}")
     for child in self.children:
         print_visitor(child)
 
 
-@print_visitor.register
+@print_visitor.register  # type: ignore
 def _(self: Table):
     print(f"write Table at {self.row}:{self.col}")
 
 
-@print_visitor.register
+@print_visitor.register  # type: ignore
 def _(self: Cell):
     print(f"write Cell {self.value} at {self.row}:{self.col}")

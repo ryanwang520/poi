@@ -1,3 +1,6 @@
+from xlsxwriter import Workbook
+from xlsxwriter.worksheet import Worksheet
+
 from .nodes import Box, BoxInstance
 from .visitors.printer import print_visitor
 from .visitors.writer import writer_visitor
@@ -5,13 +8,18 @@ from .writer import Writer
 
 
 class Sheet:
-    def __init__(self, root: Box, start_row=0, start_col=0):
+    def __init__(self, root: Box, start_row: int = 0, start_col: int = 0):
         BoxInstance(root, start_row, start_col, None)
         self.root = root
 
     @classmethod
     def attach_to_exist_worksheet(
-        cls, workbook, worksheet, root, start_row=0, start_col=0
+        cls,
+        workbook: Workbook,
+        worksheet: Worksheet,
+        root: Box,
+        start_row: int = 0,
+        start_col: int = 0,
     ):
         sheet = cls(root, start_row, start_col)
         writer = Writer(workbook, worksheet)
@@ -26,7 +34,7 @@ class Sheet:
         writer.close()
         return writer
 
-    def write(self, filename):
+    def write(self, filename: str):
         writer = self.write_to_bytesio()
         with open(filename, "wb") as f:
             f.write(writer.read())

@@ -1,8 +1,11 @@
 # Poi: Make creating Excel XLSX files fun again.
 
+.. image:: https://travis-ci.org/baoshishu/poi.svg?branch=master
+   :target: https://travis-ci.org/baoshishu/poi
+
 Poi helps you write Excel sheet in a declarative way, ensuring you have a better Excel writing experience.
 
-It only supports 3.7+.
+It only supports Python 3.7+.
 
 ## Quick start
 

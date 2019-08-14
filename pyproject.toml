@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poi"
-version = "0.1.11"
+version = "0.1.12"
 description = "Write Excel XLSX declaratively."
 authors = ["Ryan Wang <hwwangwang@gmail.com>"]
 license = "MIT"
@@ -9,7 +9,6 @@ homepage = "https://github.com/baoshishu/poi"
 repository = "https://github.com/baoshishu/poi"
 documentation = "https://github.com/baoshishu/poi"
 
-include = ["poi/py.typed"]
 
 
 keywords = ["xlsx", "xlswriter", "excel", "declarative"]

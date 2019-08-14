@@ -72,7 +72,7 @@ class Box:
 
     def __init__(
         self,
-        children: Iterable["Box"] = None,
+        children: List["Box"] = None,
         rowspan: int = None,
         colspan: int = None,
         offset: int = 0,
@@ -292,7 +292,7 @@ class Table(Box):
     def __init__(
         self,
         data: List[Any],
-        columns: Iterable[Union[Tuple[str, str], ColumnDict]],
+        columns: List[Union[Tuple[str, str], ColumnDict]],
         cell_width: int = None,
         cell_height: int = None,
         cell_style: Dict[str, Callable[[Any, Optional[Column]], bool]] = None,

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poi"
-version = "0.1.13"
+version = "0.1.14"
 description = "Write Excel XLSX declaratively."
 authors = ["Ryan Wang <hwwangwang@gmail.com>"]
 license = "MIT"
@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.6"
 xlsxwriter = "^1.1"
 
 

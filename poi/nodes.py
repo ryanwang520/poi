@@ -9,7 +9,8 @@ from typing import (
     TypeVar,
     Generic,
     Iterable,
-    Sequence,
+    Collection,
+    Any,
 )
 
 from .helpers import Direction
@@ -291,8 +292,8 @@ class Table(Box, Generic[T]):
 
     def __init__(
         self,
-        data: Sequence[T],
-        columns: Sequence,
+        data: Collection[T],
+        columns: Collection[Any],
         cell_width: int = None,
         cell_height: int = None,
         cell_style: Dict[

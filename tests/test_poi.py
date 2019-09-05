@@ -56,7 +56,7 @@ def test_table():
             data=data,
             columns=columns,
             col_width=20,
-            row_height=lambda row: 100,
+            row_height=lambda: 100,
             cell_style={
                 "bg_color: yellow; text_wrap: true;": lambda record, col: col.attr
                 == "name"

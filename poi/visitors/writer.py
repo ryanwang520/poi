@@ -6,6 +6,12 @@ from inspect import signature
 from ..nodes import Row, Col, Table, Cell
 
 
+def call_by_sig(fn, *args):
+    sig = signature(fn)
+    arg_length = len(sig.parameters)
+    return fn(*args[:arg_length])
+
+
 def writer_visitor(writer):
     @singledispatch
     def visitor(_):
@@ -37,7 +43,7 @@ def writer_visitor(writer):
                 if isinstance(self.row_height, int):
                     height = self.row_height
                 else:
-                    height = self.row_height(self.data[i - 1])
+                    height = call_by_sig(self.row_height, self.data[i - 1], i - 1)
             if height:
                 writer.worksheet.set_row(self.row + i, height)
         for i, column in enumerate(self.columns):
@@ -65,21 +71,12 @@ def writer_visitor(writer):
 
                 else:
                     for styles, condition in self.cell_style.items():
-                        sig = signature(condition)
-                        if (
-                            condition(item, column)
-                            if len(sig.parameters) == 2
-                            else condition(item)
-                        ):
+                        if call_by_sig(condition, item, column):
                             fmt.update(format_from_style(styles))
                 if column.attr:
                     val = get_obj_attr(item, column.attr)
                 else:
-                    sig = signature(column.render)
-                    if len(sig.parameters) == 1:
-                        val = column.render(item)
-                    else:
-                        val = column.render(item, column)
+                    val = call_by_sig(column.render, item, column)
                 if isinstance(val, datetime.datetime):
                     fmt["num_format"] = self.datetime_format or "yyyy-mm-dd hh:mm:ss"
                 if isinstance(val, datetime.date):

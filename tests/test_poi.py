@@ -6,7 +6,7 @@ from poi import __version__, Sheet, Col, Row, Cell, Table
 
 
 def test_version():
-    assert __version__ == "0.1.15"
+    assert __version__ == "0.1.16"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
@@ -36,8 +36,8 @@ def test_basic():
             ],
         )
     )
-    # assert_match_snapshot(sheet, "basic.xlsx")
-    sheet.write("tests/__snapshots__/basic.xlsx")
+    assert_match_snapshot(sheet, "basic.xlsx")
+    # sheet.write("tests/__snapshots__/basic.xlsx")
 
 
 def test_table():
@@ -66,5 +66,5 @@ def test_table():
             border=1,
         )
     )
-    # assert_match_snapshot(sheet, "table.xlsx")
-    sheet.write("tests/__snapshots__/table.xlsx")
+    assert_match_snapshot(sheet, "table.xlsx")
+    # sheet.write("tests/__snapshots__/table.xlsx")

@@ -6,7 +6,7 @@ from poi import __version__, Sheet, Col, Row, Cell, Table
 
 
 def test_version():
-    assert __version__ == "0.1.15"
+    assert __version__ == "0.1.16"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
@@ -57,7 +57,8 @@ def test_table():
             columns=columns,
             cell_width=20,
             cell_style={
-                "bg_color: yellow": lambda record, col: col.attr == "name"
+                "bg_color: yellow; text_wrap: true;": lambda record, col: col.attr
+                == "name"
                 and record.name == "name 1"
             },
             date_format="yyyy-mm-dd",

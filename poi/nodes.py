@@ -12,8 +12,11 @@ from typing import (
     Collection,
     Any,
 )
-
+import logging
 from .helpers import Direction
+
+logger = logging.getLogger("poi")
+logger.addHandler(logging.NullHandler())
 
 
 class BoxInstance:
@@ -295,7 +298,9 @@ class Table(Box, Generic[T]):
         data: Collection[T],
         columns: Collection[Any],
         cell_width: int = 15,
+        col_width: int = 15,
         cell_height: int = 20,
+        row_height: Union[Callable, int] = None,
         border: int = 1,
         cell_style: Union[
             Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]], str
@@ -308,8 +313,12 @@ class Table(Box, Generic[T]):
     ):
         super().__init__(*args, border=border, **kwargs)
         self.data = data
-        self.cell_width = cell_width
-        self.cell_height = cell_height
+        if cell_width:
+            logger.warning("cell_width is deprecated, use col_width instead")
+        self.col_width = col_width or cell_width
+        if cell_height:
+            logger.warning("cell_height is deprecated, use row_height instead")
+        self.row_height = row_height or cell_height
 
         self.cell_style = cell_style or {}
         self.date_format = date_format

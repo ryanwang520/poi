@@ -31,11 +31,17 @@ def writer_visitor(writer):
             return obj
 
         row, col = self.row, self.col
-        if self.cell_height:
-            for i in range(len(self.data) + 1):
-                writer.worksheet.set_row(self.row + i, self.cell_height)
+        for i in range(len(self.data) + 1):
+            height = None
+            if self.row_height and i >= 1:
+                if isinstance(self.row_height, int):
+                    height = self.row_height
+                else:
+                    height = self.row_height(self.data[i - 1])
+            if height:
+                writer.worksheet.set_row(self.row + i, height)
         for i, column in enumerate(self.columns):
-            width = column.width or self.cell_width
+            width = column.width or self.col_width
             if width:
                 writer.worksheet.set_column(self.col + i, self.col + i, width)
             writer.write(row, col + i, column.title, self.cell_format)

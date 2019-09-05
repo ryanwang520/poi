@@ -42,18 +42,30 @@ def writer_visitor(writer):
 
         for i, item in enumerate(self.data):
 
+            def format_from_style(style_css):
+                rv = {}
+                for style in style_css.split(";"):
+                    style = style.strip()
+                    if style == "":
+                        continue
+                    k, v = re.split(r"\s*:\s*", style)
+                    rv[k] = v
+                return rv
+
             for j, column in enumerate(self.columns):
                 fmt = {}
-                for styles, condition in self.cell_style.items():
-                    sig = signature(condition)
-                    if (
-                        condition(item, column)
-                        if len(sig.parameters) == 2
-                        else condition(item)
-                    ):
-                        for style in styles.split(";"):
-                            k, v = re.split(r"\s*:\s*", style.strip())
-                            fmt[k] = v
+                if isinstance(self.cell_style, str):
+                    fmt.update(format_from_style(self.cell_style))
+
+                else:
+                    for styles, condition in self.cell_style.items():
+                        sig = signature(condition)
+                        if (
+                            condition(item, column)
+                            if len(sig.parameters) == 2
+                            else condition(item)
+                        ):
+                            fmt.update(format_from_style(styles))
                 if column.attr:
                     val = get_obj_attr(item, column.attr)
                 else:

@@ -294,10 +294,11 @@ class Table(Box, Generic[T]):
         self,
         data: Collection[T],
         columns: Collection[Any],
-        cell_width: int = None,
-        cell_height: int = None,
-        cell_style: Dict[
-            str, Union[Callable[[T, Column], bool], Callable[[T], bool]]
+        cell_width: int = 15,
+        cell_height: int = 20,
+        border: int = 1,
+        cell_style: Union[
+            Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]], str
         ] = None,
         datetime_format: str = None,
         date_format: str = None,
@@ -305,7 +306,7 @@ class Table(Box, Generic[T]):
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, border=border, **kwargs)
         self.data = data
         self.cell_width = cell_width
         self.cell_height = cell_height

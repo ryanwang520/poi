@@ -3,6 +3,8 @@ import datetime
 import re
 from inspect import signature
 
+from ..utils import get_obj_attr
+
 from ..nodes import Row, Col, Table, Cell
 
 
@@ -29,12 +31,6 @@ def writer_visitor(writer):
 
     @visitor.register
     def _(self: Table):
-        def get_obj_attr(obj, field):
-            for key in field.split("."):
-                obj = getattr(obj, key)
-                if obj is None:
-                    break
-            return obj
 
         row, col = self.row, self.col
         for i in range(len(self.data) + 1):

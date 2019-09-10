@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poi"
-version = "0.1.17"
+version = "0.1.18"
 description = "Write Excel XLSX declaratively."
 authors = ["Ryan Wang <hwwangwang@gmail.com>"]
 license = "MIT"

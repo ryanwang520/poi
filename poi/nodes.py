@@ -108,7 +108,7 @@ class Box:
                 else:
                     yield x
 
-        children = list(flatten(children or []))
+        children = [child for child in flatten(children or []) if child is not None]
         self.children = children
         for child in self.children:
             child.parent = self

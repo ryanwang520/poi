@@ -111,7 +111,7 @@ class Box:
         children = [child for child in flatten(children or []) if child is not None]
         self.children = children
         for child in self.children:
-            child.parent = self
+            child.parent = self  # type: ignore
         self.styles = kwargs
         self.instance = None
 

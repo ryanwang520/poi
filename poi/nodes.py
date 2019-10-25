@@ -86,7 +86,7 @@ class Box:
 
     def __init__(
         self,
-        children: Iterable["Box"] = None,
+        children: Iterable[Optional["Box"]] = None,
         rowspan: int = None,
         colspan: int = None,
         offset: int = 0,

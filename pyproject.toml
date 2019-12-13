@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poi"
-version = "0.1.22"
+version = "0.1.23"
 description = "Write Excel XLSX declaratively."
 authors = ["Ryan Wang <hwwangwang@gmail.com>"]
 license = "MIT"
@@ -15,7 +15,9 @@ keywords = ["xlsx", "xlswriter", "excel", "declarative"]
 
 classifiers = [
     "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries :: Python Modules"
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
 ]
 
 [tool.poetry.dependencies]
@@ -24,15 +26,15 @@ xlsxwriter = "^1.1"
 
 
 [tool.poetry.dev-dependencies]
-pytest = "^3.0"
-flake8 = "^3.6"
-black = {version = "^19.3-b0",allows-prereleases = true}
-mypy = "^0.720.0"
+pytest = "^5.3.1"
+flake8 = "^3.7.9"
+mypy = "^0.750"
+black = "^19.10b0"
 
 
 
 [tool.black]
-target-version = ['py37']
+target-version = ['py38']
 exclude = '''
 /(
     \.git

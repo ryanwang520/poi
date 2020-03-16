@@ -27,11 +27,11 @@ def _(self: Table):
     print(f"write Table at {self.row}:{self.col}")
 
 
-@print_visitor.register
-def _(self: Image):
-    print(f"insert image {self.filename} at {self.row}:{self.col}")
-
-
 @print_visitor.register  # type: ignore
 def _(self: Cell):
     print(f"write Cell {self.value} at {self.row}:{self.col}")
+
+
+@print_visitor.register  # type: ignore
+def _(self: Image):
+    print(f"insert image {self.filename} at {self.row}:{self.col}")

@@ -80,7 +80,11 @@ def writer_visitor(writer):
                 if isinstance(val, datetime.time):
                     fmt["num_format"] = self.time_format or "hh:mm:ss"
 
-                writer.write(row + i + 1, col + j, val, {**self.cell_format, **fmt})
+                print(column.type)
+                if column.type == "image":
+                    writer.insert_image(row + i + 1, col + j, val, column.options)
+                else:
+                    writer.write(row + i + 1, col + j, val, {**self.cell_format, **fmt})
 
     @visitor.register
     def _(self: Image):

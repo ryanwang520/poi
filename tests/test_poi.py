@@ -48,6 +48,7 @@ def test_basic(pytestconfig):
 def test_table(pytestconfig):
     class Record(NamedTuple):
         name: str
+        image: str
         desc: str
         remark: str
         time: datetime.datetime
@@ -58,10 +59,22 @@ def test_table(pytestconfig):
             desc=f"desc {i}",
             remark=f"remark {i}",
             time=datetime.datetime.now(),
+            image="assets/image.jpeg",
         )
         for i in range(3)
     ]
-    columns = [("name", "名称"), ("desc", "描述"), ("remark", "备注"), ("time", "时间")]
+    columns = [
+        ("name", "名称"),
+        ("desc", "描述"),
+        ("remark", "备注"),
+        ("time", "时间"),
+        {
+            "attr": "image",
+            "title": "图片",
+            "type": "image",
+            "options": {"x_scale": 0.25, "y_scale": 0.25},
+        },
+    ]
     sheet = Sheet(
         root=Table(
             data=data,

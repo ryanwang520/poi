@@ -308,6 +308,8 @@ class Column(NamedTuple):
     attr: Optional[str] = None
     render: Optional[Callable] = None
     width: Optional[int] = None
+    type: Literal["image", "text"] = "text"
+    options: Optional[dict] = None
 
 
 T = TypeVar("T")
@@ -356,6 +358,8 @@ class Table(Box, Generic[T]):
                 item = Column(
                     attr=col.get("attr"),
                     title=col["title"],
+                    type=col.get("type"),
+                    options=col.get("options"),
                     render=col.get("render"),
                     width=col.get("width"),
                 )

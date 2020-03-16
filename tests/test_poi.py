@@ -83,7 +83,7 @@ def test_table(pytestconfig):
         assert_match_snapshot(sheet, "table.xlsx")
 
 
-def test_complex(pytestconfig):
+def test_complex_row(pytestconfig):
     sheet = Sheet(
         root=Col(
             colspan=8,
@@ -125,6 +125,53 @@ def test_complex(pytestconfig):
     )
     if pytestconfig.getoption("update_snapshot"):
         sheet.print()
-        sheet.write("tests/__snapshots__/complex.xlsx")
+        sheet.write("tests/__snapshots__/complex_row.xlsx")
     else:
-        assert_match_snapshot(sheet, "complex.xlsx")
+        assert_match_snapshot(sheet, "complex_row.xlsx")
+
+
+def test_complex_col(pytestconfig):
+    sheet = Sheet(
+        root=Row(
+            rowspan=8,
+            children=[
+                Col(
+                    # offset=1,
+                    children=[
+                        Cell(
+                            "cell 1",
+                            offset=2,
+                            grow=True,
+                            bg_color="yellow",
+                            align="center",
+                            border=1,
+                        )
+                    ]
+                ),
+                Col(
+                    children=[
+                        Cell("cell 2", bg_color="red", align="top", border=2),
+                        Cell(
+                            "cell 3",
+                            offset=1,
+                            grow=True,
+                            bg_color="green",
+                            align="bottom",
+                        ),
+                        Row(children=[Cell("cell 4"), Cell("cell 5")], bg_color="red"),
+                    ]
+                ),
+                Col(
+                    # offset=1,
+                    children=[
+                        Cell("cell 6", grow=True, bg_color="cyan", align="center")
+                    ]
+                ),
+            ],
+        )
+    )
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.print()
+        sheet.write("tests/__snapshots__/complex_col.xlsx")
+    else:
+        assert_match_snapshot(sheet, "complex_col.xlsx")

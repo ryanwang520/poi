@@ -230,7 +230,9 @@ class Col(Box):
             ), "only one row in a col can have grow attr"
             if self.rowspan:
                 child.rowspan = (
-                    self.rowspan - self.offset - sum(c.rowspan or 1 for c in neighbours)
+                    self.rowspan
+                    - child.offset
+                    - sum(c.rowspan or 1 for c in neighbours)
                 )
             else:
 

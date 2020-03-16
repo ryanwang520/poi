@@ -11,12 +11,20 @@ from typing import (
     Iterable,
     Collection,
     Any,
+    List,
 )
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 import logging
-from .helpers import Direction
 
 logger = logging.getLogger("poi")
 logger.addHandler(logging.NullHandler())
+
+Direction = Literal["HORIZONTAL", "VERTICAL"]
 
 
 class BoxInstance:
@@ -42,7 +50,9 @@ class BoxInstance:
         current_col = self.col
         for child in children:
             child.styles = {**child.styles, **self.box.styles}
-            self.box.add_child_span(child)
+            self.box.add_child_span(
+                child, neighbours=[c for c in children if c is not child]
+            )
             child_node, current_row, current_col = self.box.process_child(
                 child, current_row, current_col
             )
@@ -71,18 +81,18 @@ class Box:
         if not self.parent:
             raise ValueError("root node cannot have direction")
         if isinstance(self.parent, Row):
-            return Direction.HORIZONTAL
+            return "HORIZONTAL"
         if isinstance(self.parent, Col):
-            return Direction.VERTICAL
+            return "VERTICAL"
         raise ValueError(f"invalid parent {self.parent}")
 
     @property
-    def is_horizontal(self):
-        return self.direction == Direction.HORIZONTAL
+    def is_horizontal(self) -> bool:
+        return self.direction == "HORIZONTAL"
 
     @property
-    def is_vertical(self):
-        return self.direction == Direction.VERTICAL
+    def is_vertical(self) -> bool:
+        return self.direction == "VERTICAL"
 
     def __init__(
         self,
@@ -115,7 +125,7 @@ class Box:
         self.styles = kwargs
         self.instance = None
 
-    def add_child_span(self, child):
+    def add_child_span(self, child, neighbours):
         pass
 
     @property
@@ -163,12 +173,19 @@ class Row(Box):
         current_col += child.cols
         return child_node, current_row, current_col
 
-    def add_child_span(self, child):
+    def add_child_span(self, child, neighbours):
         if not child.rowspan:
             child.rowspan = self.rowspan
         if child.grow:
+            assert all(
+                not c.grow for c in neighbours
+            ), "only one col in a row can have grow attr"
             if self.colspan:
-                child.colspan = self.colspan - self.offset
+                child.colspan = (
+                    self.colspan
+                    - child.offset
+                    - sum(c.colspan or 1 for c in neighbours)
+                )
             else:
 
                 def col_determinable(box):
@@ -202,19 +219,26 @@ class Row(Box):
     @property
     def rows(self):
         if self.rowspan:
-            offset = self.offset + self.offset if self.is_vertical else 0
+            offset = self.offset if self.is_vertical else 0
             return self.rowspan + offset
         self.assert_children_bound()
         return max(child.rows for child in self.children)
 
 
 class Col(Box):
-    def add_child_span(self, child):
+    def add_child_span(self, child, neighbours):
         if not child.colspan:
             child.colspan = self.colspan
         if child.grow:
+            assert all(
+                not c.grow for c in neighbours
+            ), "only one row in a col can have grow attr"
             if self.rowspan:
-                child.rowspan = self.rowspan - self.offset
+                child.rowspan = (
+                    self.rowspan
+                    - child.offset
+                    - sum(c.rowspan or 1 for c in neighbours)
+                )
             else:
 
                 def row_determinable(box):
@@ -277,7 +301,11 @@ class Cell(Box):
 
 
 class Image(Cell):
-    pass
+    def __init__(self, filename: str, *args, **kwargs):
+        options = kwargs.pop("options", None)
+        super().__init__("", *args, **kwargs)
+        self.filename = filename
+        self.options = options
 
 
 class Column(NamedTuple):
@@ -285,13 +313,15 @@ class Column(NamedTuple):
     attr: Optional[str] = None
     render: Optional[Callable] = None
     width: Optional[int] = None
+    type: Literal["image", "text"] = "text"
+    options: Optional[dict] = None
 
 
 T = TypeVar("T")
 
 
 class Table(Box, Generic[T]):
-    columns: Iterable[Column]
+    columns: List[Column]
 
     def __init__(
         self,
@@ -333,6 +363,8 @@ class Table(Box, Generic[T]):
                 item = Column(
                     attr=col.get("attr"),
                     title=col["title"],
+                    type=col.get("type"),  # type: ignore
+                    options=col.get("options"),
                     render=col.get("render"),
                     width=col.get("width"),
                 )
@@ -343,5 +375,5 @@ class Table(Box, Generic[T]):
         return len(self.data) + 1
 
     @property
-    def cols(self,):
+    def cols(self,) -> int:
         return len(self.columns)

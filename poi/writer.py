@@ -48,3 +48,6 @@ class Writer:
     def merge_range(self, *args):
         args = self._path_args(args)
         self.worksheet.merge_range(*args)
+
+    def insert_image(self, *args):
+        self.worksheet.insert_image(*args)

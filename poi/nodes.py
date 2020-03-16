@@ -11,9 +11,14 @@ from typing import (
     Iterable,
     Collection,
     Any,
-    Literal,
     List,
 )
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 import logging
 
 logger = logging.getLogger("poi")
@@ -358,7 +363,7 @@ class Table(Box, Generic[T]):
                 item = Column(
                     attr=col.get("attr"),
                     title=col["title"],
-                    type=col.get("type"),
+                    type=col.get("type"),  # type: ignore
                     options=col.get("options"),
                     render=col.get("render"),
                     width=col.get("width"),

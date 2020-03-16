@@ -8,7 +8,7 @@ from poi.nodes import Image
 
 
 def test_version():
-    assert __version__ == "0.1.24"
+    assert __version__ == "0.1.25"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
@@ -125,7 +125,11 @@ def test_complex_row(pytestconfig):
                             bg_color="green",
                             align="bottom",
                         ),
-                        Col(children=[Cell("cell 4"), Cell("cell 5")], bg_color="red"),
+                        Col(
+                            offset=1,
+                            children=[Cell("cell 4", colspan=2), Cell("cell 5")],
+                            bg_color="red",
+                        ),
                     ]
                 ),
                 Row(
@@ -146,7 +150,7 @@ def test_complex_row(pytestconfig):
 def test_complex_col(pytestconfig):
     sheet = Sheet(
         root=Row(
-            rowspan=8,
+            # rowspan=8,
             children=[
                 Col(
                     # offset=1,
@@ -171,19 +175,24 @@ def test_complex_col(pytestconfig):
                             bg_color="green",
                             align="bottom",
                         ),
-                        Row(children=[Cell("cell 4"), Cell("cell 5")], bg_color="red"),
+                        Row(
+                            offset=1,
+                            children=[Cell("cell 4", rowspan=2), Cell("cell 5")],
+                            bg_color="red",
+                        ),
                     ]
                 ),
                 Col(
-                    # offset=1,
+                    rowspan=8,
                     children=[
                         Cell("cell 6", grow=True, bg_color="cyan", align="center")
-                    ]
+                    ],
                 ),
-            ],
+            ]
         )
     )
     if pytestconfig.getoption("update_snapshot"):
+        sheet.print()
         sheet.write("tests/__snapshots__/complex_col.xlsx")
     else:
         assert_match_snapshot(sheet, "complex_col.xlsx")
@@ -214,7 +223,6 @@ def test_image(pytestconfig):
         )
     )
     if pytestconfig.getoption("update_snapshot"):
-        sheet.print()
         sheet.write("tests/__snapshots__/image.xlsx")
     else:
         assert_match_snapshot(sheet, "image.xlsx")

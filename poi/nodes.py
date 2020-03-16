@@ -17,7 +17,7 @@ from typing import (
 try:
     from typing import Literal
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal  # type: ignore
 
 import logging
 
@@ -162,6 +162,30 @@ class Box:
     def assert_children_bound(self):
         assert all(child.instance for child in self.children)
 
+    def figure_out_cols(self):
+        max_col = 1
+        for child in self.children:
+            if child.colspan:
+                if max_col < child.colspan:
+                    max_col = child.colspan
+                else:
+                    col = child.figure_out_cols()
+                    if col > max_col:
+                        max_col = col
+        return max_col
+
+    def figure_out_rows(self):
+        max_row = 1
+        for child in self.children:
+            if child.rowspan:
+                if max_row < child.rowspan:
+                    max_row = child.rowspan
+                else:
+                    row = child.figure_out_rows()
+                    if row > max_row:
+                        max_row = row
+        return max_row
+
 
 class Row(Box):
     def process_child(
@@ -180,13 +204,7 @@ class Row(Box):
             assert all(
                 not c.grow for c in neighbours
             ), "only one col in a row can have grow attr"
-            if self.colspan:
-                child.colspan = (
-                    self.colspan
-                    - child.offset
-                    - sum(c.colspan or 1 for c in neighbours)
-                )
-            else:
+            if not self.colspan:
 
                 def col_determinable(box):
                     try:
@@ -200,10 +218,17 @@ class Row(Box):
                     if col_determinable(child)
                 ]
                 if neighbor_with_cols:
-                    child.colspan = (
+                    self.colspan = (
                         max(neighor.cols for neighor in neighbor_with_cols)
                         - self.offset
                     )
+                else:
+                    raise ValueError(f"{child} width is not determinable")
+            child.colspan = (
+                self.colspan
+                - child.offset
+                - sum(c.offset + (c.figure_out_cols()) for c in neighbours)
+            )
 
     @property
     def cols(self):
@@ -233,13 +258,7 @@ class Col(Box):
             assert all(
                 not c.grow for c in neighbours
             ), "only one row in a col can have grow attr"
-            if self.rowspan:
-                child.rowspan = (
-                    self.rowspan
-                    - child.offset
-                    - sum(c.rowspan or 1 for c in neighbours)
-                )
-            else:
+            if not self.rowspan:
 
                 def row_determinable(box):
                     try:
@@ -253,10 +272,17 @@ class Col(Box):
                     if row_determinable(child)
                 ]
                 if neighbor_with_rows:
-                    child.rowspan = (
+                    self.rowspan = (
                         max(neighor.rows for neighor in neighbor_with_rows)
                         - self.offset
                     )
+                else:
+                    raise ValueError(f"{child} height is not determinable")
+            child.rowspan = (
+                self.rowspan
+                - child.offset
+                - sum(c.offset + c.figure_out_rows() for c in neighbours)
+            )
 
     def process_child(self, child, current_row, current_col):
         child_node = BoxInstance(

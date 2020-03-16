@@ -8,7 +8,7 @@ from poi.nodes import Image
 
 
 def test_version():
-    assert __version__ == "0.1.25"
+    assert __version__ == "0.2.0"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
@@ -16,7 +16,7 @@ def assert_match_snapshot(sheet: Sheet, snapshot):
     actual = sheet.write_to_bytesio().read()
     path = Path(os.path.dirname(__file__)) / "__snapshots__" / snapshot
     expect = path.read_bytes()
-    assert abs(len(expect) - len(actual)) <= 2
+    assert abs(len(expect) - len(actual)) <= 3
 
 
 def test_basic(pytestconfig):
@@ -100,7 +100,7 @@ def test_table(pytestconfig):
 def test_complex_row(pytestconfig):
     sheet = Sheet(
         root=Col(
-            colspan=8,
+            # colspan=8,
             children=[
                 Row(
                     # offset=1,
@@ -135,10 +135,10 @@ def test_complex_row(pytestconfig):
                 Row(
                     # offset=1,
                     children=[
-                        Cell("cell 6", grow=True, bg_color="cyan", align="center")
+                        Cell("cell 6", colspan=12, bg_color="cyan", align="center")
                     ]
                 ),
-            ],
+            ]
         )
     )
     if pytestconfig.getoption("update_snapshot"):
@@ -183,16 +183,16 @@ def test_complex_col(pytestconfig):
                     ]
                 ),
                 Col(
-                    rowspan=8,
+                    # rowspan=8,
                     children=[
-                        Cell("cell 6", grow=True, bg_color="cyan", align="center")
-                    ],
+                        Cell("cell 6", rowspan=10, bg_color="cyan", align="center")
+                    ]
                 ),
             ]
         )
     )
     if pytestconfig.getoption("update_snapshot"):
-        sheet.print()
+        # sheet.print()
         sheet.write("tests/__snapshots__/complex_col.xlsx")
     else:
         assert_match_snapshot(sheet, "complex_col.xlsx")

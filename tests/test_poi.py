@@ -8,7 +8,7 @@ from poi.nodes import Image
 
 
 def test_version():
-    assert __version__ == "0.1.25"
+    assert __version__ == "0.2.0"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
@@ -16,7 +16,7 @@ def assert_match_snapshot(sheet: Sheet, snapshot):
     actual = sheet.write_to_bytesio().read()
     path = Path(os.path.dirname(__file__)) / "__snapshots__" / snapshot
     expect = path.read_bytes()
-    assert abs(len(expect) - len(actual)) <= 2
+    assert abs(len(expect) - len(actual)) <= 3
 
 
 def test_basic(pytestconfig):

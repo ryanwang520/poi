@@ -296,7 +296,11 @@ class Cell(Box):
 
 
 class Image(Cell):
-    pass
+    def __init__(self, filename: str, *args, **kwargs):
+        options = kwargs.pop("options", None)
+        super().__init__("", *args, **kwargs)
+        self.filename = filename
+        self.options = options
 
 
 class Column(NamedTuple):

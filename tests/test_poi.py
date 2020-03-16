@@ -4,6 +4,7 @@ import os
 from typing import NamedTuple
 
 from poi import __version__, Sheet, Col, Row, Cell, Table
+from poi.nodes import Image
 
 
 def test_version():
@@ -15,7 +16,7 @@ def assert_match_snapshot(sheet: Sheet, snapshot):
     actual = sheet.write_to_bytesio().read()
     path = Path(os.path.dirname(__file__)) / "__snapshots__" / snapshot
     expect = path.read_bytes()
-    assert abs(len(expect) - len(actual)) <= 1
+    assert abs(len(expect) - len(actual)) <= 2
 
 
 def test_basic(pytestconfig):
@@ -124,7 +125,6 @@ def test_complex_row(pytestconfig):
         )
     )
     if pytestconfig.getoption("update_snapshot"):
-        sheet.print()
         sheet.write("tests/__snapshots__/complex_row.xlsx")
     else:
         assert_match_snapshot(sheet, "complex_row.xlsx")
@@ -171,7 +171,37 @@ def test_complex_col(pytestconfig):
         )
     )
     if pytestconfig.getoption("update_snapshot"):
-        sheet.print()
         sheet.write("tests/__snapshots__/complex_col.xlsx")
     else:
         assert_match_snapshot(sheet, "complex_col.xlsx")
+
+
+def test_image(pytestconfig):
+    sheet = Sheet(
+        root=Col(
+            colspan=8,
+            children=[
+                Row(
+                    rowspan=5,
+                    children=[
+                        Cell("cell 1", bg_color="cyan", align="center"),
+                        Image(
+                            "assets/image.jpeg",
+                            colspan=4,
+                            offset=2,
+                            grow=True,
+                            align="center",
+                            border=1,
+                            options={"x_scale": 0.2, "y_scale": 0.2},
+                        ),
+                        Cell("cell 2", bg_color="red", align="center"),
+                    ],
+                )
+            ],
+        )
+    )
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.print()
+        sheet.write("tests/__snapshots__/image.xlsx")
+    else:
+        assert_match_snapshot(sheet, "image.xlsx")

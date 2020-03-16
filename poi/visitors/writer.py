@@ -5,7 +5,7 @@ from inspect import signature
 
 from ..utils import get_obj_attr
 
-from ..nodes import Row, Col, Table, Cell
+from ..nodes import Row, Col, Table, Cell, Image
 
 
 def call_by_sig(fn, *args):
@@ -81,6 +81,10 @@ def writer_visitor(writer):
                     fmt["num_format"] = self.time_format or "hh:mm:ss"
 
                 writer.write(row + i + 1, col + j, val, {**self.cell_format, **fmt})
+
+    @visitor.register
+    def _(self: Image):
+        writer.insert_image(self.row, self.col, self.filename, self.options)
 
     @visitor.register
     def _(self: Cell):

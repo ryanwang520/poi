@@ -217,27 +217,9 @@ class Row(Box):
             ), "only one col in a row can have grow attr"
             if not self.colspan:
 
-                def col_determinable(box):
-                    try:
-                        return box.cols
-                    except AssertionError:
-                        return False
-
-                # neighbor_with_cols = [
-                #     child
-                #     for child in self.instance.parent.box.children
-                #     if col_determinable(child)
-                # ]
                 neighbor_with_cols = [
                     child for child in self.instance.parent.box.children if child
                 ]
-                # if neighbor_with_cols:
-                #     self.colspan = (
-                #         max(neighor.cols for neighor in neighbor_with_cols)
-                #         - self.offset
-                #     )
-                # else:
-                #     raise ValueError(f"{child} width is not determinable")
                 if neighbor_with_cols:
                     neighbour_cols = [
                         n.figure_out_cols(raises=False) for n in neighbor_with_cols
@@ -287,12 +269,6 @@ class Col(Box):
             ), "only one row in a col can have grow attr"
             if not self.rowspan:
 
-                # def row_determinable(box):
-                #     try:
-                #         return box.rows
-                #     except AssertionError:
-                #         return False
-
                 neighbor_with_rows = [
                     child for child in self.instance.parent.box.children if child
                 ]
@@ -307,10 +283,6 @@ class Col(Box):
                         self.rowspan = max(valid_rows) - self.offset
                     else:
                         raise ValueError(f"{child} height is not determinable")
-                    # self.rowspan = (
-                    #     max(neighor.rows for neighor in neighbor_with_rows)
-                    #     - self.offset
-                    # )
                 else:
                     raise ValueError(f"{child} height is not determinable")
             child.rowspan = (

@@ -315,13 +315,7 @@ class Col(Box):
         return sum(child.rows for child in self.children)
 
 
-class Cell(Box):
-    def __init__(self, value: str, *args, **kwargs):
-        height = kwargs.pop("height", None)
-        super().__init__(*args, **kwargs)
-        self.value = value
-        self.height = height
-
+class PrimitiveBox(Box):
     @property
     def cols(self):
         offset = self.offset if self.is_horizontal else 0
@@ -333,10 +327,18 @@ class Cell(Box):
         return (self.rowspan or 1) + offset
 
 
-class Image(Cell):
+class Cell(PrimitiveBox):
+    def __init__(self, value: str, *args, **kwargs):
+        height = kwargs.pop("height", None)
+        super().__init__(*args, **kwargs)
+        self.value = value
+        self.height = height
+
+
+class Image(PrimitiveBox):
     def __init__(self, filename: str, *args, **kwargs):
         options = kwargs.pop("options", None)
-        super().__init__("", *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.filename = filename
         self.options = options
 

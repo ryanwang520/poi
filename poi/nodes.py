@@ -59,6 +59,9 @@ class BoxInstance:
             self.children.append(child_node)
 
 
+_NotDetermined = object()
+
+
 class Box:
     instance: Optional[BoxInstance]
     parent: Optional["Box"]
@@ -162,28 +165,36 @@ class Box:
     def assert_children_bound(self):
         assert all(child.instance for child in self.children)
 
-    def figure_out_cols(self):
+    def figure_out_cols(self, raises=True):
+        if self.grow:
+            if raises:
+                raise ValueError(f"{self} cannot grow as the col have to be determined")
+            return _NotDetermined
         max_col = 1
         for child in self.children:
             if child.colspan:
                 if max_col < child.colspan:
                     max_col = child.colspan
-                else:
-                    col = child.figure_out_cols()
-                    if col > max_col:
-                        max_col = col
+            else:
+                col = child.figure_out_cols(raises=raises)
+                if col is not _NotDetermined and col > max_col:
+                    max_col = col
         return max_col
 
-    def figure_out_rows(self):
+    def figure_out_rows(self, raises=True):
+        if self.grow:
+            if raises:
+                raise ValueError(f"{self} cannot grow as the row have to be determined")
+            return _NotDetermined
         max_row = 1
         for child in self.children:
             if child.rowspan:
                 if max_row < child.rowspan:
                     max_row = child.rowspan
-                else:
-                    row = child.figure_out_rows()
-                    if row > max_row:
-                        max_row = row
+            else:
+                row = child.figure_out_rows(raises=raises)
+                if row is not _NotDetermined and row > max_row:
+                    max_row = row
         return max_row
 
 
@@ -212,16 +223,32 @@ class Row(Box):
                     except AssertionError:
                         return False
 
+                # neighbor_with_cols = [
+                #     child
+                #     for child in self.instance.parent.box.children
+                #     if col_determinable(child)
+                # ]
                 neighbor_with_cols = [
-                    child
-                    for child in self.instance.parent.box.children
-                    if col_determinable(child)
+                    child for child in self.instance.parent.box.children if child
                 ]
+                # if neighbor_with_cols:
+                #     self.colspan = (
+                #         max(neighor.cols for neighor in neighbor_with_cols)
+                #         - self.offset
+                #     )
+                # else:
+                #     raise ValueError(f"{child} width is not determinable")
                 if neighbor_with_cols:
-                    self.colspan = (
-                        max(neighor.cols for neighor in neighbor_with_cols)
-                        - self.offset
-                    )
+                    neighbour_cols = [
+                        n.figure_out_cols(raises=False) for n in neighbor_with_cols
+                    ]
+                    valid_cols = [
+                        col for col in neighbour_cols if col is not _NotDetermined
+                    ]
+                    if valid_cols:
+                        self.colspan = max(valid_cols) - self.offset
+                    else:
+                        raise ValueError(f"{child} width is not determinable")
                 else:
                     raise ValueError(f"{child} width is not determinable")
             child.colspan = (
@@ -260,22 +287,30 @@ class Col(Box):
             ), "only one row in a col can have grow attr"
             if not self.rowspan:
 
-                def row_determinable(box):
-                    try:
-                        return box.rows
-                    except AssertionError:
-                        return False
+                # def row_determinable(box):
+                #     try:
+                #         return box.rows
+                #     except AssertionError:
+                #         return False
 
                 neighbor_with_rows = [
-                    child
-                    for child in self.instance.parent.box.children
-                    if row_determinable(child)
+                    child for child in self.instance.parent.box.children if child
                 ]
                 if neighbor_with_rows:
-                    self.rowspan = (
-                        max(neighor.rows for neighor in neighbor_with_rows)
-                        - self.offset
-                    )
+                    neighbour_rows = [
+                        n.figure_out_rows(raises=False) for n in neighbor_with_rows
+                    ]
+                    valid_rows = [
+                        row for row in neighbour_rows if row is not _NotDetermined
+                    ]
+                    if valid_rows:
+                        self.rowspan = max(valid_rows) - self.offset
+                    else:
+                        raise ValueError(f"{child} height is not determinable")
+                    # self.rowspan = (
+                    #     max(neighor.rows for neighor in neighbor_with_rows)
+                    #     - self.offset
+                    # )
                 else:
                     raise ValueError(f"{child} height is not determinable")
             child.rowspan = (

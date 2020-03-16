@@ -109,3 +109,7 @@ migrations
 pip-wheel-metadata
 logs
 poetry.lock
+
+# excel
+
+~$*.xlsx

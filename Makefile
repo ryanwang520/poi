@@ -4,3 +4,4 @@ publish:
 
 update_snapshot:
 	pytest --update-snapshot
+

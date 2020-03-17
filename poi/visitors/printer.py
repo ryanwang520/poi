@@ -29,7 +29,10 @@ def _(self: Table):
 
 @print_visitor.register  # type: ignore
 def _(self: Cell):
-    print(f"write Cell {self.value} at {self.row}:{self.col}")
+    print(
+        f"write Cell {self.value} at {self.row}:{self.col} "
+        f"rowspan {self.rowspan} colspan {self.colspan}"
+    )
 
 
 @print_visitor.register  # type: ignore

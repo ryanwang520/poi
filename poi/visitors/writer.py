@@ -80,7 +80,6 @@ def writer_visitor(writer):
                 if isinstance(val, datetime.time):
                     fmt["num_format"] = self.time_format or "hh:mm:ss"
 
-                print(column.type)
                 if column.type == "image":
                     writer.insert_image(row + i + 1, col + j, val, column.options)
                 else:

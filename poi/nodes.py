@@ -167,7 +167,7 @@ class Box:
 
     def figure_out_cols(self, raises=True):
         if self.colspan:
-            return self.colspan
+            return self.colspan + self.offset
         if self.grow:
             if raises:
                 raise ValueError(f"{self} cannot grow as the col have to be determined")
@@ -181,11 +181,11 @@ class Box:
                 col = child.figure_out_cols(raises=raises)
                 if col is not _NotDetermined and col > max_col:
                     max_col = col
-        return max_col
+        return max_col + self.offset
 
     def figure_out_rows(self, raises=True):
         if self.rowspan:
-            return self.rowspan
+            return self.rowspan + self.offset
         if self.grow:
             if raises:
                 raise ValueError(f"{self} cannot grow as the row have to be determined")
@@ -199,7 +199,7 @@ class Box:
                 row = child.figure_out_rows(raises=raises)
                 if row is not _NotDetermined and row > max_row:
                     max_row = row
-        return max_row
+        return max_row + self.offset
 
 
 class Row(Box):
@@ -234,7 +234,7 @@ class Row(Box):
                         col for col in neighbour_cols if col is not _NotDetermined
                     ]
                     if valid_cols:
-                        self.colspan = max(valid_cols) - self.offset
+                        self.colspan = max(valid_cols)
                     else:
                         raise ValueError(f"{child} width is not determinable")
                 else:
@@ -242,7 +242,7 @@ class Row(Box):
             child.colspan = (
                 self.colspan
                 - child.offset
-                - sum(c.offset + (c.figure_out_cols()) for c in neighbours)
+                - sum(c.figure_out_cols() for c in neighbours)
             )
 
     @property
@@ -288,7 +288,7 @@ class Col(Box):
                         row for row in neighbour_rows if row is not _NotDetermined
                     ]
                     if valid_rows:
-                        self.rowspan = max(valid_rows) - self.offset
+                        self.rowspan = max(valid_rows)
                     else:
                         raise ValueError(f"{child} height is not determinable")
                 else:
@@ -296,7 +296,7 @@ class Col(Box):
             child.rowspan = (
                 self.rowspan
                 - child.offset
-                - sum(c.offset + c.figure_out_rows() for c in neighbours)
+                - sum(c.figure_out_rows() for c in neighbours)
             )
 
     def process_child(self, child, current_row, current_col):

@@ -60,28 +60,45 @@ class Product(NamedTuple):
     desc: str
     price: int
     created_at: datetime
+    img: str
 
 
 data = [
-    Product(name=f"prod {i}", desc=f"desc {i}", price=random.randint(1, 100), created_at=datetime.now())
-    for i in range(10)
+    Product(
+        name=f"prod {i}",
+        desc=f"desc {i}",
+        price=random.randint(1, 100),
+        created_at=datetime.now(),
+        img="./docs/assets/product.jpg",
+    )
+    for i in range(5)
 ]
-columns = [("name", "Name"), ("desc", "Description"), ("price", "Price"), ("created_at", "Create Time")]
+columns = [
+    {
+        "type": "image",
+        "attr": "img",
+        "title": "Product Image",
+        "options": {"x_scale": 0.27, "y_scale": 0.25},
+    },
+    ("name", "Name"),
+    ("desc", "Description"),
+    ("price", "Price"),
+    ("created_at", "Create Time"),
+]
 sheet = Sheet(
     root=Table(
         data=data,
         columns=columns,
-        cell_width=20,
+        row_height=80,
         cell_style={
-            "color: red": lambda record, col: col.attr == "price"
-                                              and record.price > 50
+            "color: red": lambda record, col: col.attr == "price" and record.price > 50
         },
         date_format="yyyy-mm-dd",
         align="center",
         border=1,
     )
 )
-sheet.write('table.xlsx')
+sheet.write("table.xlsx")
 
 ```
 

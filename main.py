@@ -1,32 +1,3 @@
-# Poi: Make creating Excel XLSX files fun again.
-
-![travis](https://travis-ci.org/baoshishu/poi.svg?branch=master)
-
-Poi helps you write Excel sheet in a declarative way, ensuring you have a better Excel writing experience.
-
-It only supports Python 3.7+.
-
-## Quick start
-
-Create a sheet object and write to a file.
-
-```python
-from poi import Sheet, Cell
-sheet = Sheet(
-    root=Cell("hello world")
-)
-
-sheet.write('hello.xlsx')
-```
-
-![hello](./docs/assets/hello.png)
-
-See, it's pretty simple and clear.
-
-
-Sample for rendering a simple table.
-
-```python
 from typing import NamedTuple
 from datetime import datetime
 import random
@@ -78,6 +49,3 @@ sheet = Sheet(
     )
 )
 sheet.write("table.xlsx")
-```
-
-![table](./docs/assets/table.png)

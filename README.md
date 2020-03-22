@@ -6,6 +6,8 @@ Poi helps you write Excel sheet in a declarative way, ensuring you have a better
 
 It only supports Python 3.7+.
 
+[Documentation](https://baoshishu.github.io/poi)
+
 ## Quick start
 
 ### Create a sheet object and write to a file.
@@ -19,7 +21,7 @@ sheet = Sheet(
 sheet.write('hello.xlsx')
 ```
 
-![hello](./docs/assets/hello.png)
+![hello](https://github.com/baoshishu/poi/raw/master/docs/assets/hello.png)
 
 See, it's pretty simple and clear.
 
@@ -80,4 +82,4 @@ sheet = Sheet(
 sheet.write("table.xlsx")
 ```
 
-![table](./docs/assets/table.png)
+![table](https://github.com/baoshishu/poi/raw/master/docs/assets/table.png)

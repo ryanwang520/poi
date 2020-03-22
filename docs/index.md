@@ -40,7 +40,7 @@ merge_format = workbook.add_format({
 worksheet.merge_range(2, 1, 3, 3, 'Merged Cells', merge_format)
 ```
 
-I think its too low level for application developers who just want to export some data to excel file. And maintaining *imperative* code like this is so hard that we may want a better way to deal with exporting data to excel. Why not just write a **Schema** of what we want to export and there's some tool to turn it to a valid xlsx file? Hopefully, this is just what Poi does.
+I think its too low level for application developers who just want to export some data to excel file. And maintaining *imperative* code like this is error prone and so hard that we may want a better way to deal with exporting data to excel. Why not just write a **Schema** of what we want to export and there's some tool to turn it to a valid xlsx file? Hopefully, this is just what Poi does.
 
 ## Quick Start
 
@@ -67,6 +67,6 @@ Then an *xlsx* file has been created.
 
 What happened? We've created a `Sheet` object with a single `Cell` Node, which just contains the text *hello world*, and then we call `sheet.write` to write the sheet object to the *hello.xlsx* file. 
 
-See, that's pretty simple. Of course Poi's ability is far beyond this, jump to [basic-usage.md](basic-usage.md) for more examples.
+See, that's pretty simple. Of course Poi's ability is far beyond this, jump to [Basic Usage](basic-usage.md) for more examples.
 
 

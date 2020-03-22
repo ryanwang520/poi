@@ -427,4 +427,5 @@ class Table(Box, Generic[T]):
     @property
     def cols(self,) -> int:
         offset = self.offset if self.is_horizontal else 0
+        assert self.colspan
         return self.colspan + offset

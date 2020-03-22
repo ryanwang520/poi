@@ -8,7 +8,7 @@ It only supports Python 3.7+.
 
 ## Quick start
 
-Create a sheet object and write to a file.
+### Create a sheet object and write to a file.
 
 ```python
 from poi import Sheet, Cell
@@ -24,7 +24,7 @@ sheet.write('hello.xlsx')
 See, it's pretty simple and clear.
 
 
-Sample for rendering a simple table.
+### Sample for rendering a simple table.
 
 ```python
 from typing import NamedTuple

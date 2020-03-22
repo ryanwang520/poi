@@ -27,7 +27,7 @@ sheet = Sheet(
 sheet.write('hello.xlsx')
 ```
 
-![hello](./docs/assets/hello.png)
+![hello](https://github.com/baoshishu/poi/raw/master/docs/assets/hello.png)
 
 See, it's pretty simple and clear.
 
@@ -88,4 +88,4 @@ sheet = Sheet(
 sheet.write("table.xlsx")
 ```
 
-![table](./docs/assets/table.png)
+![table](https://github.com/baoshishu/poi/raw/master/docs/assets/table.png)

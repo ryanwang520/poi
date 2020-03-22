@@ -8,7 +8,7 @@ from poi.nodes import Image
 
 
 def test_version():
-    assert __version__ == "0.2.4"
+    assert __version__ == "0.2.5"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):

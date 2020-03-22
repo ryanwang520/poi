@@ -8,6 +8,12 @@ It only supports Python 3.7+.
 
 [Documentation](https://baoshishu.github.io/poi)
 
+## Installation
+
+```bash
+pip install poi
+```
+
 ## Quick start
 
 ### Create a sheet object and write to a file.

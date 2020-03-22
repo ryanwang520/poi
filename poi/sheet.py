@@ -1,14 +1,19 @@
 from xlsxwriter import Workbook
 from xlsxwriter.worksheet import Worksheet
+from typing import Union, List
 
-from .nodes import Box, BoxInstance
+from .nodes import Box, BoxInstance, Col
 from .visitors.printer import print_visitor
 from .visitors.writer import writer_visitor
 from .writer import Writer
 
 
 class Sheet:
-    def __init__(self, root: Box, start_row: int = 0, start_col: int = 0):
+    def __init__(
+        self, root: Union[Box, List[Box]], start_row: int = 0, start_col: int = 0
+    ):
+        if isinstance(root, list):
+            root = Col(children=root)
         BoxInstance(root, start_row, start_col, None)
         self.root = root
 

@@ -99,7 +99,7 @@ class Box:
 
     def __init__(
         self,
-        children: Iterable[Optional["Box"]] = None,
+        children: Union[Iterable[Optional["Box"]], "Box"] = None,
         rowspan: int = None,
         colspan: int = None,
         offset: int = 0,
@@ -121,7 +121,10 @@ class Box:
                 else:
                     yield x
 
-        children = [child for child in flatten(children or []) if child is not None]
+        if isinstance(children, Box):
+            children = [children]
+        else:
+            children = [child for child in flatten(children or []) if child is not None]
         self.children = children
         for child in self.children:
             child.parent = self  # type: ignore

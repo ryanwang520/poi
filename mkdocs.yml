@@ -1,0 +1,10 @@
+site_name: Poi Docs
+nav:
+    - Introduction: index.md
+    - Basic Usage: basic-usage.md
+
+theme: material
+
+
+markdown_extensions:
+  - codehilite

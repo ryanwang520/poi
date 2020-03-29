@@ -12,6 +12,7 @@ from typing import (
     Collection,
     Any,
     List,
+    TypedDict,
 )
 
 try:
@@ -366,13 +367,40 @@ class Column(NamedTuple):
 T = TypeVar("T")
 
 
+class TextColBase(TypedDict):
+    title: str
+
+
+class ImageColBase(TypedDict):
+    attr: str
+    title: str
+    type: Literal["image"]
+
+
+class ImageCol(ImageColBase, total=False):
+    width: int
+    options: Dict[str, Any]
+
+
+class TextCol(TextColBase):
+    type: Literal["text"]
+    attr: str
+    render: Union[Callable[[T], Any], Callable[[T, Column], Any]]
+    width: int
+
+
+TableCol = Union[ImageCol, TextCol]
+
+C = Union[Tuple[str, str], TableCol]
+
+
 class Table(Box, Generic[T]):
     columns: List[Column]
 
     def __init__(
         self,
         data: Collection[T],
-        columns: Collection[Any],
+        columns: Collection[C],
         cell_width: int = 15,
         col_width: int = 15,
         cell_height: int = 20,
@@ -406,12 +434,22 @@ class Table(Box, Generic[T]):
             if isinstance(col, tuple):
                 item = Column(attr=col[0], title=col[1])
             else:
+                attr: Optional[str]
+                col.setdefault("type", "text")  # type: ignore
+                render = None
+                if col["type"] == "image":
+                    options = col.get("options")
+                    attr = col["attr"]
+                else:
+                    options = None
+                    render = col.get("render")
+                    attr = col.get("attr")
                 item = Column(
-                    attr=col.get("attr"),
+                    attr=attr,
                     title=col["title"],
-                    type=col.get("type"),  # type: ignore
-                    options=col.get("options"),
-                    render=col.get("render"),
+                    type=col["type"],
+                    options=options,
+                    render=render,
                     width=col.get("width"),
                 )
             self.columns.append(item)

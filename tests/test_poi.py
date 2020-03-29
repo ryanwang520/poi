@@ -1,10 +1,10 @@
 import datetime
 from pathlib import Path
 import os
-from typing import NamedTuple
+from typing import NamedTuple, List, cast
 
 from poi import __version__, Sheet, Col, Row, Cell, Table
-from poi.nodes import Image
+from poi.nodes import Image, C, ImageCol
 
 
 def test_version():
@@ -45,7 +45,7 @@ def test_basic(pytestconfig):
         assert_match_snapshot(sheet, "basic.xlsx")
 
 
-def test_table(pytestconfig):
+def test_table(pytestconfig) -> None:
     class Record(NamedTuple):
         name: str
         image: str
@@ -63,18 +63,22 @@ def test_table(pytestconfig):
         )
         for i in range(3)
     ]
-    columns = [
+    columns: List[C] = [
         ("name", "名称"),
         ("desc", "描述"),
         ("remark", "备注"),
         ("time", "时间"),
-        {
-            "attr": "image",
-            "title": "图片",
-            "type": "image",
-            "options": {"x_scale": 0.25, "y_scale": 0.25},
-        },
+        cast(
+            ImageCol,
+            {
+                "attr": "image",
+                "title": "图片",
+                "type": "image",
+                "options": {"x_scale": 0.25, "y_scale": 0.25},
+            },
+        ),
     ]
+    # reveal_type(columns)
     sheet = Sheet(
         root=Table(
             data=data,

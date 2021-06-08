@@ -41,7 +41,7 @@ class Sheet:
         sheet.root.accept(visitor)
         return writer
 
-    def write_to_bytesio(self) -> BytesIO:
+    def write_to_bytes_io(self) -> BytesIO:
         workbook = BytesIOWorkBook()
         worksheet = workbook.add_worksheet()
         writer = Writer(workbook, worksheet)
@@ -50,13 +50,17 @@ class Sheet:
         workbook.close()
         return workbook.io
 
+    # old compat
+    def write_to_bytesio(self):
+        return self.write_to_bytes_io()
+
     def write(self, filename: str):
-        io = self.write_to_bytesio()
+        io = self.write_to_bytes_io()
         with open(filename, "wb") as f:
             f.write(io.read())
 
     def print(self):
         self.root.accept(print_visitor)
 
-    def to_bytesio(self):
-        return self.write_to_bytesio()
+    def to_bytes_io(self):
+        return self.write_to_bytes_io()

@@ -48,13 +48,11 @@ class Writer:
         workbook: WorkBook,
         worksheet: Worksheet,
         global_format=None,
-        attached=False,
     ):
 
         self.workbook = workbook
         self.worksheet = worksheet
-        if global_format:
-            self.global_format = self.workbook.add_format(global_format)
+        self.global_format = self.workbook.add_format(global_format) if global_format else None
         self.global_format_dict = global_format or {}
 
     def _calc_format(self, cell_format):

@@ -15,12 +15,12 @@ class Book:
         self.sheets.append(worksheet)
 
     def write(self, filename: str):
-        data = self.write_to_bytesio()
+        data = self.write_to_bytes_io()
         with open(filename, "wb") as f:
             f.write(data.read())
             data.close()
 
-    def write_to_bytesio(self):
+    def write_to_bytes_io(self):
 
         workbook = BytesIOWorkBook()
         for sheet in self.sheets:

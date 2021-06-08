@@ -19,6 +19,7 @@ class Sheet:
         root: Union[Box, List[Box]],
         start_row: int = 0,
         start_col: int = 0,
+        name=None,
         workbook: Optional[Workbook] = None,
         worksheet: Optional[Worksheet] = None,
     ):
@@ -28,6 +29,7 @@ class Sheet:
         self.root = root
         self.workbook = workbook
         self.worksheet = worksheet
+        self.name = name
 
     @classmethod
     def attach_to_exist_worksheet(
@@ -81,7 +83,7 @@ class Book:
         workbook = xlsxwriter.Workbook()
         with open(filename, "wb") as f:
             for sheet in self.sheets:
-                worksheet = workbook.add_worksheet()
+                worksheet = workbook.add_worksheet(name=sheet.name)
                 sheet.workbook = workbook
                 sheet.worksheet = worksheet
                 sheet.write(f)
@@ -90,7 +92,7 @@ class Book:
         workbook = xlsxwriter.Workbook()
         output = BytesIO()
         for sheet in self.sheets:
-            worksheet = workbook.add_worksheet()
+            worksheet = workbook.add_worksheet(name=sheet.name)
             sheet.workbook = workbook
             sheet.worksheet = worksheet
             sheet.to_bytes_io(output)

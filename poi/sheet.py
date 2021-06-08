@@ -42,7 +42,13 @@ class Sheet:
         return writer
 
     def write_to_bytesio(self) -> BytesIO:
-        return self.to_bytes_io()
+        workbook = BytesIOWorkBook()
+        worksheet = workbook.add_worksheet()
+        writer = Writer(workbook, worksheet)
+        visitor = writer_visitor(writer)
+        self.root.accept(visitor)
+        workbook.close()
+        return workbook.io
 
     def write(self, filename: str):
         io = self.write_to_bytesio()
@@ -52,37 +58,5 @@ class Sheet:
     def print(self):
         self.root.accept(print_visitor)
 
-    def to_bytes_io(self):
-        workbook = BytesIOWorkBook()
-        worksheet = workbook.add_worksheet()
-        writer = Writer(workbook, worksheet)
-        visitor = writer_visitor(writer)
-        self.root.accept(visitor)
-        workbook.close()
-        return workbook.io
-
-
-class Book:
-    def __init__(self):
-        self.sheets: List[Sheet] = []
-
-    def add_sheet(self, worksheet: Sheet):
-        self.sheets.append(worksheet)
-
-    def write(self, filename: str):
-        data = self.to_bytes_io()
-        with open(filename, "wb") as f:
-            f.write(data.read())
-            data.close()
-
-    def to_bytes_io(self):
-
-        workbook = BytesIOWorkBook()
-        for sheet in self.sheets:
-            worksheet = workbook.add_worksheet(name=sheet.name)
-            writer = Writer(workbook, worksheet)
-            visitor = writer_visitor(writer)
-            sheet.root.accept(visitor)
-
-        workbook.close()
-        return workbook.io
+    def to_bytesio(self):
+        return self.write_to_bytesio()

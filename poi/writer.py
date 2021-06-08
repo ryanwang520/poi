@@ -1,13 +1,10 @@
+from __future__ import annotations
 from io import BytesIO
 
 import xlsxwriter
 
-from . import Sheet
-
 
 class Writer:
-    worksheet: Sheet
-
     def __init__(
         self,
         workbook=None,

@@ -2,15 +2,26 @@ from io import BytesIO
 
 import xlsxwriter
 
+from . import Sheet
+
 
 class Writer:
-    def __init__(self, workbook=None, worksheet=None, global_format=None):
+    worksheet: Sheet
+
+    def __init__(
+        self,
+        workbook=None,
+        worksheet=None,
+        global_format=None,
+        attached=False,
+        output=None,
+    ):
         if not (workbook and worksheet):
             self.output = BytesIO()
             self.workbook = xlsxwriter.Workbook(self.output)
             self.worksheet = self.workbook.add_worksheet()
         else:
-            self.output = None
+            self.output = None if attached else output or BytesIO()
             self.workbook = workbook
             self.worksheet = worksheet
         self.global_format = self.workbook.add_format(global_format)

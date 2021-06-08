@@ -16,12 +16,12 @@ class Writer:
         attached=False,
         output=None,
     ):
+
+        self.output = (output or BytesIO()) if not attached else None
         if not (workbook and worksheet):
-            self.output = BytesIO()
             self.workbook = xlsxwriter.Workbook(self.output)
             self.worksheet = self.workbook.add_worksheet()
         else:
-            self.output = None if attached else output or BytesIO()
             self.workbook = workbook
             self.worksheet = worksheet
         self.global_format = self.workbook.add_format(global_format)

@@ -5,7 +5,7 @@ from xlsxwriter import Workbook
 from xlsxwriter.worksheet import Worksheet
 import xlsxwriter
 
-from typing import Union, List, IO, Optional
+from typing import Union, List, Optional
 
 from .nodes import Box, BoxInstance, Col
 from .visitors.printer import print_visitor
@@ -53,13 +53,10 @@ class Sheet:
         writer.close()
         return writer
 
-    def write(self, filename: Union[str, IO]):
+    def write(self, filename: str):
         writer = self.write_to_bytesio()
-        if isinstance(filename, str):
-            with open(filename, "wb") as f:
-                f.write(writer.read())
-        else:
-            filename.write(writer.read())
+        with open(filename, "wb") as f:
+            f.write(writer.read())
 
     def print(self):
         self.root.accept(print_visitor)

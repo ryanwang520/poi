@@ -80,6 +80,7 @@ class Book:
         data = self.to_bytes_io()
         with open(filename, "wb") as f:
             f.write(data.read())
+            data.close()
 
     def to_bytes_io(self):
         output = BytesIO()

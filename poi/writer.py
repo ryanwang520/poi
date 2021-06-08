@@ -1,35 +1,61 @@
 from __future__ import annotations
 from io import BytesIO
+from typing import Protocol, List
 
 import xlsxwriter
+from xlsxwriter.format import Format
+from xlsxwriter.worksheet import Worksheet
+
+
+class WorkBook(Protocol):
+    def add_format(self, format) -> Format:
+        ...
+
+    def worksheets(self) -> List[Worksheet]:
+        ...
+
+    def add_worksheet(self, name=None) -> Worksheet:
+        ...
+
+
+class BytesIOWorkBook:
+    def __init__(self):
+        self.io = BytesIO()
+        self.workbook = xlsxwriter.Workbook(self.io)
+
+    def add_format(self, format):
+        return self.workbook.add_format(format)
+
+    def close(self):
+        self.workbook.close()
+        self.io.seek(0)
+
+    def read(self):
+        data = self.io.read()
+        self.io.close()
+        return data
+
+    def worksheets(self):
+        return self.workbook.worksheets()
+
+    def add_worksheet(self, name=None):
+        return self.workbook.add_worksheet(name)
 
 
 class Writer:
     def __init__(
-        self, workbook=None, worksheet=None, global_format=None, attached=False
+        self,
+        workbook: WorkBook,
+        worksheet: Worksheet,
+        global_format=None,
+        attached=False,
     ):
 
-        self.output = BytesIO() if not attached else None
-        if not (workbook and worksheet):
-            self.should_close = True
-            self.workbook = xlsxwriter.Workbook(self.output)
-            self.worksheet = self.workbook.add_worksheet()
-        else:
-            self.should_close = False
-            self.workbook = workbook
-            self.worksheet = worksheet
-        self.global_format = self.workbook.add_format(global_format)
+        self.workbook = workbook
+        self.worksheet = worksheet
+        if global_format:
+            self.global_format = self.workbook.add_format(global_format)
         self.global_format_dict = global_format or {}
-
-    def close(self):
-        if self.should_close:
-            self.workbook.close()
-            self.output.seek(0)
-
-    def read(self):
-        if not self.output:
-            raise ValueError("cannot read from attached worksheet")
-        return self.output.read()
 
     def _calc_format(self, cell_format):
         if cell_format is None:

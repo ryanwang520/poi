@@ -3,14 +3,13 @@ from io import BytesIO
 
 from xlsxwriter import Workbook
 from xlsxwriter.worksheet import Worksheet
-import xlsxwriter
 
-from typing import Union, List, Optional
+from typing import Union, List
 
 from .nodes import Box, BoxInstance, Col
 from .visitors.printer import print_visitor
 from .visitors.writer import writer_visitor
-from .writer import Writer
+from .writer import Writer, BytesIOWorkBook
 
 
 class Sheet:
@@ -20,15 +19,11 @@ class Sheet:
         start_row: int = 0,
         start_col: int = 0,
         name=None,
-        workbook: Optional[Workbook] = None,
-        worksheet: Optional[Worksheet] = None,
     ):
         if isinstance(root, list):
             root = Col(children=root)
         BoxInstance(root, start_row, start_col, None)
         self.root = root
-        self.workbook = workbook
-        self.worksheet = worksheet
         self.name = name
 
     @classmethod
@@ -41,32 +36,30 @@ class Sheet:
         start_col: int = 0,
     ):
         sheet = cls(root, start_row, start_col)
-        writer = Writer(workbook, worksheet, attached=True)
+        writer = Writer(workbook, worksheet)
         visitor = writer_visitor(writer)
         sheet.root.accept(visitor)
         return writer
 
-    def write_to_bytesio(self) -> Writer:
-        writer = Writer(worksheet=self.worksheet, workbook=self.workbook)
-        visitor = writer_visitor(writer)
-        self.root.accept(visitor)
-        writer.close()
-        return writer
+    def write_to_bytesio(self) -> BytesIO:
+        return self.to_bytes_io()
 
     def write(self, filename: str):
-        writer = self.write_to_bytesio()
+        io = self.write_to_bytesio()
         with open(filename, "wb") as f:
-            f.write(writer.read())
+            f.write(io.read())
 
     def print(self):
         self.root.accept(print_visitor)
 
     def to_bytes_io(self):
-        writer = Writer(worksheet=self.worksheet, workbook=self.workbook)
+        workbook = BytesIOWorkBook()
+        worksheet = workbook.add_worksheet()
+        writer = Writer(workbook, worksheet)
         visitor = writer_visitor(writer)
         self.root.accept(visitor)
-        writer.close()
-        return writer.output
+        workbook.close()
+        return workbook.io
 
 
 class Book:
@@ -83,13 +76,13 @@ class Book:
             data.close()
 
     def to_bytes_io(self):
-        output = BytesIO()
-        workbook = xlsxwriter.Workbook(output)
+
+        workbook = BytesIOWorkBook()
         for sheet in self.sheets:
             worksheet = workbook.add_worksheet(name=sheet.name)
-            sheet.workbook = workbook
-            sheet.worksheet = worksheet
-            sheet.write_to_bytesio()
+            writer = Writer(workbook, worksheet)
+            visitor = writer_visitor(writer)
+            sheet.root.accept(visitor)
+
         workbook.close()
-        output.seek(0)
-        return output
+        return workbook.io

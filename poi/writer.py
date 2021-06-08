@@ -6,27 +6,24 @@ import xlsxwriter
 
 class Writer:
     def __init__(
-        self,
-        workbook=None,
-        worksheet=None,
-        global_format=None,
-        attached=False,
-        output=None,
+        self, workbook=None, worksheet=None, global_format=None, attached=False
     ):
 
-        self.output = (output or BytesIO()) if not attached else None
+        self.output = BytesIO() if not attached else None
         if not (workbook and worksheet):
+            self.should_close = True
             self.workbook = xlsxwriter.Workbook(self.output)
             self.worksheet = self.workbook.add_worksheet()
         else:
+            self.should_close = False
             self.workbook = workbook
             self.worksheet = worksheet
         self.global_format = self.workbook.add_format(global_format)
         self.global_format_dict = global_format or {}
 
     def close(self):
-        self.workbook.close()
-        if self.output:
+        if self.should_close:
+            self.workbook.close()
             self.output.seek(0)
 
     def read(self):

@@ -64,8 +64,8 @@ class Sheet:
     def print(self):
         self.root.accept(print_visitor)
 
-    def to_bytes_io(self, output: Optional[IO] = None):
-        writer = Writer(worksheet=self.worksheet, workbook=self.workbook, output=output)
+    def to_bytes_io(self):
+        writer = Writer(worksheet=self.worksheet, workbook=self.workbook)
         visitor = writer_visitor(writer)
         self.root.accept(visitor)
         writer.close()
@@ -76,32 +76,22 @@ class Book:
     def __init__(self):
         self.sheets: List[Sheet] = []
 
-    def add_worksheet(self, worksheet: Sheet):
+    def add_sheet(self, worksheet: Sheet):
         self.sheets.append(worksheet)
 
     def write(self, filename: str):
-        workbook = xlsxwriter.Workbook()
+        data = self.to_bytes_io()
         with open(filename, "wb") as f:
-            for sheet in self.sheets:
-                worksheet = workbook.add_worksheet(name=sheet.name)
-                sheet.workbook = workbook
-                sheet.worksheet = worksheet
-                sheet.write(f)
+            f.write(data.read())
 
     def to_bytes_io(self):
-        workbook = xlsxwriter.Workbook()
         output = BytesIO()
+        workbook = xlsxwriter.Workbook(output)
         for sheet in self.sheets:
             worksheet = workbook.add_worksheet(name=sheet.name)
             sheet.workbook = workbook
             sheet.worksheet = worksheet
-            sheet.to_bytes_io(output)
+            sheet.write_to_bytesio()
+        workbook.close()
+        output.seek(0)
         return output
-
-
-def main():
-    book = Book()
-    book.add_worksheet(Sheet())
-    book.add_worksheet(Sheet())
-    book.add_worksheet(Sheet())
-    book.write()

@@ -361,6 +361,7 @@ class Column(NamedTuple):
     width: Optional[int] = None
     type: Literal["image", "text"] = "text"
     options: Optional[dict] = None
+    format: Optional[dict] = None
 
 
 T = TypeVar("T")
@@ -413,6 +414,7 @@ class Table(Box, Generic[T]):
                     options=col.get("options"),
                     render=col.get("render"),
                     width=col.get("width"),
+                    format=col.get('format'),
                 )
             self.columns.append(item)
 

@@ -374,11 +374,9 @@ class Table(Box, Generic[T]):
         self,
         data: Collection[T],
         columns: Collection[Any],
-        cell_width: int = 15,
-        col_width: int = 15,
-        cell_height: int = 20,
-        row_height: Union[Callable, int] = None,
-        border: int = 1,
+        col_width: Union[int,None] = None,
+        row_height: Union[Callable, int,None] = None,
+        border: Union[int,None] = None,
         cell_style: Union[
             Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]], str
         ] = None,
@@ -388,14 +386,10 @@ class Table(Box, Generic[T]):
         *args,
         **kwargs,
     ):
-        super().__init__(*args, border=border, **kwargs)
+        super().__init__(*args, border=border or 1, **kwargs)
         self.data = data
-        if cell_width:
-            logger.warning("cell_width is deprecated, use col_width instead")
-        self.col_width = col_width or cell_width
-        if cell_height:
-            logger.warning("cell_height is deprecated, use row_height instead")
-        self.row_height = row_height or cell_height
+        self.col_width = col_width or 15
+        self.row_height = row_height
 
         self.cell_style = cell_style or {}
         self.date_format = date_format

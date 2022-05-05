@@ -34,9 +34,10 @@ class Sheet:
         root: Box,
         start_row: int = 0,
         start_col: int = 0,
+        global_format=None,
     ):
         sheet = cls(root, start_row, start_col)
-        writer = Writer(workbook, worksheet)
+        writer = Writer(workbook, worksheet, global_format=global_format)
         visitor = writer_visitor(writer)
         sheet.root.accept(visitor)
         return writer

@@ -52,7 +52,9 @@ class Writer:
 
         self.workbook = workbook
         self.worksheet = worksheet
-        self.global_format = self.workbook.add_format(global_format) if global_format else None
+        self.global_format = (
+            self.workbook.add_format(global_format) if global_format else None
+        )
         self.global_format_dict = global_format or {}
 
     def _calc_format(self, cell_format):

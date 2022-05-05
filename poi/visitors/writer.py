@@ -79,7 +79,7 @@ def writer_visitor(writer):
                     fmt["num_format"] = self.date_format or "yyyy-mm-dd"
                 if isinstance(val, datetime.time):
                     fmt["num_format"] = self.time_format or "hh:mm:ss"
-                
+
                 if column.format:
                     fmt.update(column.format)
 
@@ -96,6 +96,8 @@ def writer_visitor(writer):
     def _(self: Cell):
         colspan = self.colspan or 1
         rowspan = self.rowspan or 1
+        if self.width:
+            writer.worksheet.set_column(self.col, self.col + colspan - 1, self.width)
         if rowspan == 1 and self.height:
             writer.worksheet.set_row(self.row, self.height)
         if colspan == 1 and rowspan == 1:

@@ -18,13 +18,13 @@ class Sheet:
         root: Union[Box, List[Box]],
         start_row: int = 0,
         start_col: int = 0,
-        name=None,
+        global_format=None,
     ):
         if isinstance(root, list):
             root = Col(children=root)
         BoxInstance(root, start_row, start_col, None)
         self.root = root
-        self.name = name
+        self.global_format = global_format
 
     @classmethod
     def attach_to_exist_worksheet(
@@ -44,7 +44,7 @@ class Sheet:
     def write_to_bytes_io(self) -> BytesIO:
         workbook = BytesIOWorkBook()
         worksheet = workbook.add_worksheet()
-        writer = Writer(workbook, worksheet)
+        writer = Writer(workbook, worksheet, self.global_format)
         visitor = writer_visitor(writer)
         self.root.accept(visitor)
         workbook.close()

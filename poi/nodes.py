@@ -339,11 +339,11 @@ class PrimitiveBox(Box):
 
 
 class Cell(PrimitiveBox):
-    def __init__(self, value: str, *args, **kwargs):
-        height = kwargs.pop("height", None)
+    def __init__(self, value: str, *args, width=None, height=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.value = value
         self.height = height
+        self.width = width
 
 
 class Image(PrimitiveBox):
@@ -374,9 +374,9 @@ class Table(Box, Generic[T]):
         self,
         data: Collection[T],
         columns: Collection[Any],
-        col_width: Union[int,None] = None,
-        row_height: Union[Callable, int,None] = None,
-        border: Union[int,None] = None,
+        col_width: Union[int, None] = None,
+        row_height: Union[Callable, int, None] = None,
+        border: Union[int, None] = None,
         cell_style: Union[
             Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]], str
         ] = None,
@@ -408,7 +408,7 @@ class Table(Box, Generic[T]):
                     options=col.get("options"),
                     render=col.get("render"),
                     width=col.get("width"),
-                    format=col.get('format'),
+                    format=col.get("format"),
                 )
             self.columns.append(item)
 
@@ -421,7 +421,9 @@ class Table(Box, Generic[T]):
         return self.rowspan + offset
 
     @property
-    def cols(self,) -> int:
+    def cols(
+        self,
+    ) -> int:
         offset = self.offset if self.is_horizontal else 0
         assert self.colspan
         return self.colspan + offset

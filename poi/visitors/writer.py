@@ -2,35 +2,37 @@ from functools import singledispatch
 import datetime
 import re
 from inspect import signature
+from typing import Any, Callable, Dict
 
 from ..utils import get_obj_attr
 
 from ..nodes import Row, Col, Table, Cell, Image
+from ..writer import Writer
 
 
-def call_by_sig(fn, *args):
+def call_by_sig(fn: Callable[..., Any], *args: Any) -> Any:
     sig = signature(fn)
     arg_length = len(sig.parameters)
     return fn(*args[:arg_length])
 
 
-def writer_visitor(writer):
+def writer_visitor(writer: Writer) -> Any:
     @singledispatch
-    def visitor(_):
+    def visitor(_: Any) -> None:
         pass
 
     @visitor.register
-    def _(self: Row):
+    def _(self: Row) -> None:
         for child in self.children:
             visitor(child)
 
     @visitor.register
-    def _(self: Col):
+    def _(self: Col) -> None:
         for child in self.children:
             visitor(child)
 
     @visitor.register
-    def _(self: Table):
+    def _(self: Table[Any]) -> None:
         row, col = self.row, self.col
         for i in range(len(self.data) + 1):
             height = None
@@ -49,7 +51,7 @@ def writer_visitor(writer):
 
         for i, item in enumerate(self.data):
 
-            def format_from_style(style_css):
+            def format_from_style(style_css: str) -> Dict[str, Any]:
                 rv = {}
                 for style in style_css.split(";"):
                     style = style.strip()
@@ -71,6 +73,7 @@ def writer_visitor(writer):
                 if column.attr:
                     val = get_obj_attr(item, column.attr)
                 else:
+                    assert column.render
                     val = call_by_sig(column.render, item, column)
                 if isinstance(val, datetime.datetime):
                     fmt["num_format"] = self.datetime_format or "yyyy-mm-dd hh:mm:ss"
@@ -88,11 +91,11 @@ def writer_visitor(writer):
                     writer.write(row + i + 1, col + j, val, {**self.cell_format, **fmt})
 
     @visitor.register
-    def _(self: Image):
+    def _(self: Image) -> None:
         writer.insert_image(self.row, self.col, self.filename, self.options)
 
     @visitor.register
-    def _(self: Cell):
+    def _(self: Cell) -> None:
         colspan = self.colspan or 1
         rowspan = self.rowspan or 1
         if self.width:

@@ -4,7 +4,7 @@ from io import BytesIO
 from xlsxwriter import Workbook
 from xlsxwriter.worksheet import Worksheet
 
-from typing import Union, List
+from typing import Union, List, Any, Optional
 
 from .nodes import Box, BoxInstance, Col
 from .visitors.printer import print_visitor
@@ -18,7 +18,7 @@ class Sheet:
         root: Union[Box, List[Box]],
         start_row: int = 0,
         start_col: int = 0,
-        global_format=None,
+        global_format: Optional[dict[str, Any]] = None,
     ):
         if isinstance(root, list):
             root = Col(children=root)
@@ -34,8 +34,8 @@ class Sheet:
         root: Box,
         start_row: int = 0,
         start_col: int = 0,
-        global_format=None,
-    ):
+        global_format: Optional[dict[str, Any]] = None,
+    ) -> Writer:
         sheet = cls(root, start_row, start_col)
         writer = Writer(workbook, worksheet, global_format=global_format)
         visitor = writer_visitor(writer)
@@ -52,16 +52,16 @@ class Sheet:
         return workbook.io
 
     # old compat
-    def write_to_bytesio(self):
+    def write_to_bytesio(self) -> BytesIO:
         return self.write_to_bytes_io()
 
-    def write(self, filename: str):
+    def write(self, filename: str) -> None:
         io = self.write_to_bytes_io()
         with open(filename, "wb") as f:
             f.write(io.read())
 
-    def print(self):
+    def print(self) -> None:
         self.root.accept(print_visitor)
 
-    def to_bytes_io(self):
+    def to_bytes_io(self) -> BytesIO:
         return self.write_to_bytes_io()

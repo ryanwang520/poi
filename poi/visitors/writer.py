@@ -32,7 +32,7 @@ def writer_visitor(writer: Writer) -> Any:
             visitor(child)
 
     @visitor.register
-    def _(self: Table[Any]) -> None:
+    def _(self: Table) -> None:  # type: ignore
         row, col = self.row, self.col
         for i in range(len(self.data) + 1):
             height = None

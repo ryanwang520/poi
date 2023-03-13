@@ -1,14 +1,14 @@
 import re
+from typing import Any
 
 p = re.compile(r"(\?)?\.")
 
 
-def get_obj_attr(obj, field):
+def get_obj_attr(obj: Any, field: str) -> Any:
     index = 0
     for match in p.finditer(field):
         start, end, s = match.start(), match.end(), match.group()
         if isinstance(obj, dict):
-
             obj = obj.get(field[index:start])
         else:
             obj = getattr(obj, field[index:start])

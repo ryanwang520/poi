@@ -1,15 +1,16 @@
 from functools import singledispatch
+from typing import Any
 
 from ..nodes import Col, Row, Table, Cell, Image
 
 
 @singledispatch
-def print_visitor(_):
+def print_visitor(_: Any) -> None:
     pass
 
 
 @print_visitor.register
-def _(self: Col):
+def _(self: Col) -> None:
     print(f"write Col at {self.row}:{self.col}")
     for child in self.children:
         print_visitor(child)

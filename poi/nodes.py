@@ -1,3 +1,4 @@
+from __future__ import annotations
 from collections import abc
 from typing import (
     Optional,
@@ -15,9 +16,9 @@ from typing import (
 )
 
 try:
-    from typing import Literal
+    from typing_extensions import Literal
 except ImportError:
-    from typing_extensions import Literal  # type: ignore
+    from typing import Literal  # type: ignore
 
 import logging
 
@@ -28,7 +29,9 @@ Direction = Literal["HORIZONTAL", "VERTICAL"]
 
 
 class BoxInstance:
-    def __init__(self, box: "Box", row, col, parent):
+    def __init__(
+        self, box: "Box", row: int, col: int, parent: Optional[BoxInstance]
+    ) -> None:
         self.box = box
         self.row = row
         self.col = col
@@ -36,12 +39,12 @@ class BoxInstance:
         box.instance = self
         self._setup_children()
 
-    def _setup_children(self):
+    def _setup_children(self) -> None:
         children = self.box.children
         if not children:
             return
         children = [
-            Cell(child) if isinstance(child, str) else child for child in children
+            Cell(child) if isinstance(child, str) else child for child in children  # type: ignore
         ]
 
         self.children = []
@@ -49,7 +52,7 @@ class BoxInstance:
         current_row = self.row
         current_col = self.col
         for child in children:
-            child.styles = {**child.styles, **self.box.styles}
+            child.styles = {**child.styles, **self.box.styles}  # type: ignore
             self.box.add_child_span(
                 child, neighbours=[c for c in children if c is not child]
             )
@@ -63,19 +66,19 @@ _NotDetermined = object()
 
 
 class Box:
-    instance: Optional[BoxInstance]
+    instance: BoxInstance
     parent: Optional["Box"]
 
-    def accept(self, visitor):
+    def accept(self, visitor: Any) -> None:
         visitor(self)
 
     @property
-    def row(self):
+    def row(self) -> int:
         assert self.instance
         return self.instance.row
 
     @property
-    def col(self):
+    def col(self) -> int:
         assert self.instance
         return self.instance.col
 
@@ -97,22 +100,24 @@ class Box:
     def is_vertical(self) -> bool:
         return self.direction == "VERTICAL"
 
+    children: List["Box"]
+
     def __init__(
         self,
-        children: Union[Iterable[Optional["Box"]], "Box"] = None,
-        rowspan: int = None,
-        colspan: int = None,
+        children: Union[Iterable[Optional["Box"]], "Box", None] = None,
+        rowspan: Optional[int] = None,
+        colspan: Optional[int] = None,
         offset: int = 0,
         grow: bool = False,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         self.parent = None
         self.rowspan = rowspan
         self.colspan = colspan
         self.offset = offset
         self.grow = grow
 
-        def flatten(items):
+        def flatten(items: Any) -> Iterable[Any]:
             """Yield items from any nested iterable"""
             for x in items:
                 if isinstance(x, abc.Iterable) and not isinstance(x, (str, bytes)):
@@ -125,24 +130,24 @@ class Box:
             children = [children]
         else:
             children = [child for child in flatten(children or []) if child is not None]
-        self.children = children
+        self.children = children  # type: ignore
         for child in self.children:
             child.parent = self  # type: ignore
         self.styles = kwargs
-        self.instance = None
+        self.instance = None  # type: ignore
 
-    def add_child_span(self, child, neighbours):
+    def add_child_span(self, child: Box, neighbours: list[Box]) -> None:
         pass
 
     @property
-    def cell_format(self):
+    def cell_format(self) -> Dict[str, Any]:
         styles = self.styles or {}
         return styles
 
-    def process_child(self, child, current_row, current_col):
+    def process_child(self, child: Box, current_row: int, current_col: int) -> Any:
         raise ValueError(f"not support type for {self}")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if not self.instance:
             return f"""
         Unbound box {self.__class__.__name__}
@@ -158,17 +163,17 @@ class Box:
         """
 
     @property
-    def cols(self):
+    def cols(self) -> int:
         raise NotImplementedError
 
     @property
-    def rows(self):
+    def rows(self) -> int:
         raise NotImplementedError
 
-    def assert_children_bound(self):
+    def assert_children_bound(self) -> None:
         assert all(child.instance for child in self.children)
 
-    def figure_out_cols(self, raises=True):
+    def figure_out_cols(self, raises: bool = True) -> Any:
         if self.colspan:
             return self.colspan + self.offset
         if self.grow:
@@ -186,7 +191,7 @@ class Box:
                     max_col = col
         return max_col + self.offset
 
-    def figure_out_rows(self, raises=True):
+    def figure_out_rows(self, raises: bool = True) -> Any:
         if self.rowspan:
             return self.rowspan + self.offset
         if self.grow:
@@ -206,8 +211,10 @@ class Box:
 
 
 class Row(Box):
+    colspan: int
+
     def process_child(
-        self, child, current_row, current_col
+        self, child: Box, current_row: int, current_col: int
     ) -> Tuple["BoxInstance", int, int]:
         child_node = BoxInstance(
             child, current_row, current_col + child.offset, self.instance
@@ -215,7 +222,7 @@ class Row(Box):
         current_col += child.cols
         return child_node, current_row, current_col
 
-    def add_child_span(self, child, neighbours):
+    def add_child_span(self, child: Box, neighbours: list[Box]) -> None:
         if not child.rowspan:
             child.rowspan = self.rowspan
         if child.grow:
@@ -249,7 +256,7 @@ class Row(Box):
             )
 
     @property
-    def cols(self):
+    def cols(self) -> int:
         """
         cols and row can only be accessed if all chilren are bound to instance
         """
@@ -260,7 +267,7 @@ class Row(Box):
         return sum(child.cols for child in self.children) + offset
 
     @property
-    def rows(self):
+    def rows(self) -> int:
         offset = self.offset if self.is_vertical else 0
         if self.rowspan:
             return self.rowspan + offset
@@ -269,7 +276,9 @@ class Row(Box):
 
 
 class Col(Box):
-    def add_child_span(self, child, neighbours):
+    rowspan: int
+
+    def add_child_span(self, child: Box, neighbours: list[Box]) -> None:
         if not child.colspan:
             child.colspan = self.colspan
         if child.grow:
@@ -277,7 +286,6 @@ class Col(Box):
                 not c.grow for c in neighbours
             ), "only one row in a col can have grow attr"
             if not self.rowspan:
-
                 if self.instance.parent:
                     parent = self.instance.parent.box
                 else:
@@ -302,7 +310,9 @@ class Col(Box):
                 - sum(c.figure_out_rows() for c in neighbours)
             )
 
-    def process_child(self, child, current_row, current_col):
+    def process_child(
+        self, child: Box, current_row: int, current_col: int
+    ) -> Tuple[BoxInstance, int, int]:
         child_node = BoxInstance(
             child, current_row + child.offset, current_col, self.instance
         )
@@ -310,7 +320,7 @@ class Col(Box):
         return child_node, current_row, current_col
 
     @property
-    def cols(self):
+    def cols(self) -> int:
         if self.colspan:
             offset = self.offset if self.is_horizontal else 0
             return self.colspan + offset
@@ -318,7 +328,7 @@ class Col(Box):
         return max(child.cols for child in self.children)
 
     @property
-    def rows(self):
+    def rows(self) -> int:
         if self.rowspan:
             offset = self.offset if self.is_vertical else 0
             return self.rowspan + offset
@@ -328,18 +338,25 @@ class Col(Box):
 
 class PrimitiveBox(Box):
     @property
-    def cols(self):
+    def cols(self) -> int:
         offset = self.offset if self.is_horizontal else 0
         return (self.colspan or 1) + offset
 
     @property
-    def rows(self):
+    def rows(self) -> int:
         offset = self.offset if self.is_vertical else 0
         return (self.rowspan or 1) + offset
 
 
 class Cell(PrimitiveBox):
-    def __init__(self, value: str, *args, width=None, height=None, **kwargs):
+    def __init__(
+        self,
+        value: str,
+        *args: Any,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.value = value
         self.height = height
@@ -347,7 +364,7 @@ class Cell(PrimitiveBox):
 
 
 class Image(PrimitiveBox):
-    def __init__(self, filename: str, *args, **kwargs):
+    def __init__(self, filename: str, *args: Any, **kwargs: Any) -> None:
         options = kwargs.pop("options", None)
         super().__init__(*args, **kwargs)
         self.filename = filename
@@ -357,11 +374,11 @@ class Image(PrimitiveBox):
 class Column(NamedTuple):
     title: str
     attr: Optional[str] = None
-    render: Optional[Callable] = None
+    render: Optional[Callable[..., Any]] = None
     width: Optional[int] = None
     type: Literal["image", "text"] = "text"
-    options: Optional[dict] = None
-    format: Optional[dict] = None
+    options: Optional[Dict[str, Any]] = None
+    format: Optional[Dict[str, Any]] = None
 
 
 T = TypeVar("T")
@@ -375,17 +392,19 @@ class Table(Box, Generic[T]):
         data: Collection[T],
         columns: Collection[Any],
         col_width: Union[int, None] = None,
-        row_height: Union[Callable, int, None] = None,
+        row_height: Union[Callable[..., Any], int, None] = None,
         border: Union[int, None] = None,
         cell_style: Union[
-            Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]], str
+            Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]],
+            str,
+            None,
         ] = None,
-        datetime_format: str = None,
-        date_format: str = None,
-        time_format: str = None,
-        *args,
-        **kwargs,
-    ):
+        datetime_format: Optional[str] = None,
+        date_format: Optional[str] = None,
+        time_format: Optional[str] = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, border=border or 1, **kwargs)
         self.data = data
         self.col_width = col_width or 15
@@ -416,9 +435,9 @@ class Table(Box, Generic[T]):
         self.colspan = len(self.columns)
 
     @property
-    def rows(self):
+    def rows(self) -> int:
         offset = self.offset if self.is_vertical else 0
-        return self.rowspan + offset
+        return self.rowspan + offset  # type: ignore
 
     @property
     def cols(

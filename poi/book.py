@@ -21,10 +21,9 @@ class Book:
             data.close()
 
     def write_to_bytes_io(self):
-
         workbook = BytesIOWorkBook()
         for sheet in self.sheets:
-            worksheet = workbook.add_worksheet(name=sheet.name)
+            worksheet = workbook.add_worksheet()
             writer = Writer(workbook, worksheet)
             visitor = writer_visitor(writer)
             sheet.root.accept(visitor)

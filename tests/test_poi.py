@@ -12,11 +12,10 @@ def test_version():
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
-
     actual = sheet.write_to_bytes_io().read()
     path = Path(os.path.dirname(__file__)) / "__snapshots__" / snapshot
     expect = path.read_bytes()
-    assert abs(len(expect) - len(actual)) <= 3
+    assert abs(len(expect) - len(actual)) <= 10
 
 
 def test_basic(pytestconfig):

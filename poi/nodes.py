@@ -14,10 +14,7 @@ from typing import (
     List,
 )
 
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore
+from typing_extensions import Literal
 
 import logging
 
@@ -41,7 +38,7 @@ class BoxInstance:
         if not children:
             return
         children = [
-            Cell(child) if isinstance(child, str) else child for child in children
+            Cell(child) if isinstance(child, str) else child for child in children  # type: ignore
         ]
 
         self.children = []
@@ -49,7 +46,7 @@ class BoxInstance:
         current_row = self.row
         current_col = self.col
         for child in children:
-            child.styles = {**child.styles, **self.box.styles}
+            child.styles = {**child.styles, **self.box.styles}  # type: ignore
             self.box.add_child_span(
                 child, neighbours=[c for c in children if c is not child]
             )
@@ -63,7 +60,7 @@ _NotDetermined = object()
 
 
 class Box:
-    instance: Optional[BoxInstance]
+    instance: BoxInstance
     parent: Optional["Box"]
 
     def accept(self, visitor):
@@ -97,11 +94,13 @@ class Box:
     def is_vertical(self) -> bool:
         return self.direction == "VERTICAL"
 
+    children: List["Box"]
+
     def __init__(
         self,
-        children: Union[Iterable[Optional["Box"]], "Box"] = None,
-        rowspan: int = None,
-        colspan: int = None,
+        children: Union[Iterable[Optional["Box"]], "Box", None] = None,
+        rowspan: Optional[int] = None,
+        colspan: Optional[int] = None,
         offset: int = 0,
         grow: bool = False,
         **kwargs,
@@ -125,11 +124,11 @@ class Box:
             children = [children]
         else:
             children = [child for child in flatten(children or []) if child is not None]
-        self.children = children
+        self.children = children  # type: ignore
         for child in self.children:
             child.parent = self  # type: ignore
         self.styles = kwargs
-        self.instance = None
+        self.instance = None  # type: ignore
 
     def add_child_span(self, child, neighbours):
         pass
@@ -277,7 +276,6 @@ class Col(Box):
                 not c.grow for c in neighbours
             ), "only one row in a col can have grow attr"
             if not self.rowspan:
-
                 if self.instance.parent:
                     parent = self.instance.parent.box
                 else:
@@ -378,11 +376,13 @@ class Table(Box, Generic[T]):
         row_height: Union[Callable, int, None] = None,
         border: Union[int, None] = None,
         cell_style: Union[
-            Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]], str
+            Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]],
+            str,
+            None,
         ] = None,
-        datetime_format: str = None,
-        date_format: str = None,
-        time_format: str = None,
+        datetime_format: Optional[str] = None,
+        date_format: Optional[str] = None,
+        time_format: Optional[str] = None,
         *args,
         **kwargs,
     ):
@@ -418,7 +418,7 @@ class Table(Box, Generic[T]):
     @property
     def rows(self):
         offset = self.offset if self.is_vertical else 0
-        return self.rowspan + offset
+        return self.rowspan + offset  # type: ignore
 
     @property
     def cols(

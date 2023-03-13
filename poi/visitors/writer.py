@@ -31,7 +31,6 @@ def writer_visitor(writer):
 
     @visitor.register
     def _(self: Table):
-
         row, col = self.row, self.col
         for i in range(len(self.data) + 1):
             height = None
@@ -39,7 +38,7 @@ def writer_visitor(writer):
                 if isinstance(self.row_height, int):
                     height = self.row_height
                 else:
-                    height = call_by_sig(self.row_height, self.data[i - 1], i - 1)
+                    height = call_by_sig(self.row_height, self.data[i - 1], i - 1)  # type: ignore
             if height:
                 writer.worksheet.set_row(self.row + i, height)
         for i, column in enumerate(self.columns):

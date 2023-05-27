@@ -5,6 +5,10 @@ from typing import Protocol, List, Any, Optional
 import xlsxwriter
 from xlsxwriter.format import Format
 from xlsxwriter.worksheet import Worksheet
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WorkBook(Protocol):
@@ -55,15 +59,23 @@ class Writer:
             self.workbook.add_format(global_format) if global_format else None
         )
         self.global_format_dict = global_format or {}
+        self.formats = {}
 
     def _calc_format(self, cell_format: Any) -> Any:
-        if cell_format is None:
-            cell_format = self.global_format
+        if not cell_format:
+            return self.global_format
         elif isinstance(cell_format, dict):
-            cell_format = self.workbook.add_format(
-                {**self.global_format_dict, **cell_format}
-            )
-        return cell_format
+            fmt_key = json.dumps(cell_format, sort_keys=True)
+            fmt = self.formats.get(fmt_key)
+            if not fmt:
+                fmt = self.workbook.add_format(
+                    {**self.global_format_dict, **cell_format}
+                )
+                self.formats[fmt_key] = fmt
+            return fmt
+        else:
+            logger.error(f"cell_format must be dict, got {cell_format}")
+            return self.global_format
 
     def _path_args(self, args: Any) -> Any:
         last_arg = args[-1]

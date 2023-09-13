@@ -56,7 +56,7 @@ class BoxInstance:
             self.box.add_child_span(
                 child, neighbours=[c for c in children if c is not child]
             )
-            child_node, current_row, current_col = self.box.process_child(
+            child_node, current_row, current_col = self.box.layout_child_element(
                 child, current_row, current_col
             )
             self.children.append(child_node)
@@ -146,7 +146,9 @@ class Box:
     def cell_format(self) -> Dict[str, Any]:
         return self.styles or {}
 
-    def process_child(self, child: Box, current_row: int, current_col: int) -> Any:
+    def layout_child_element(
+        self, child: Box, current_row: int, current_col: int
+    ) -> Any:
         raise ValueError(f"not support type for {self}")
 
     def __repr__(self) -> str:
@@ -175,7 +177,7 @@ class Box:
     def assert_children_bound(self) -> None:
         assert all(child.instance for child in self.children)
 
-    def figure_out_cols(self, raises: bool = True) -> Any:
+    def calculate_column_span(self, raises: bool = True) -> Any:
         if self.colspan:
             return self.colspan + self.offset
         if self.grow:
@@ -188,12 +190,12 @@ class Box:
                 if max_col < child.colspan:
                     max_col = child.colspan
             else:
-                col = child.figure_out_cols(raises=raises)
+                col = child.calculate_column_span(raises=raises)
                 if col is not _NotDetermined and col > max_col:
                     max_col = col
         return max_col + self.offset
 
-    def figure_out_rows(self, raises: bool = True) -> Any:
+    def calculate_row_span(self, raises: bool = True) -> Any:
         if self.rowspan:
             return self.rowspan + self.offset
         if self.grow:
@@ -206,7 +208,7 @@ class Box:
                 if max_row < child.rowspan:
                     max_row = child.rowspan
             else:
-                row = child.figure_out_rows(raises=raises)
+                row = child.calculate_row_span(raises=raises)
                 if row is not _NotDetermined and row > max_row:
                     max_row = row
         return max_row + self.offset
@@ -215,7 +217,7 @@ class Box:
 class Row(Box):
     colspan: int
 
-    def process_child(
+    def layout_child_element(
         self, child: Box, current_row: int, current_col: int
     ) -> Tuple["BoxInstance", int, int]:
         child_node = BoxInstance(
@@ -240,7 +242,8 @@ class Row(Box):
                 neighbor_with_cols = [child for child in parent.children if child]
                 if neighbor_with_cols:
                     neighbour_cols = [
-                        n.figure_out_cols(raises=False) for n in neighbor_with_cols
+                        n.calculate_column_span(raises=False)
+                        for n in neighbor_with_cols
                     ]
                     valid_cols = [
                         col for col in neighbour_cols if col is not _NotDetermined
@@ -254,7 +257,7 @@ class Row(Box):
             child.colspan = (
                 self.colspan
                 - child.offset
-                - sum(c.figure_out_cols() for c in neighbours)
+                - sum(c.calculate_column_span() for c in neighbours)
             )
 
     @property
@@ -295,7 +298,7 @@ class Col(Box):
                 neighbor_with_rows = [child for child in parent.children if child]
                 if neighbor_with_rows:
                     neighbour_rows = [
-                        n.figure_out_rows(raises=False) for n in neighbor_with_rows
+                        n.calculate_row_span(raises=False) for n in neighbor_with_rows
                     ]
                     valid_rows = [
                         row for row in neighbour_rows if row is not _NotDetermined
@@ -309,10 +312,10 @@ class Col(Box):
             child.rowspan = (
                 self.rowspan
                 - child.offset
-                - sum(c.figure_out_rows() for c in neighbours)
+                - sum(c.calculate_row_span() for c in neighbours)
             )
 
-    def process_child(
+    def layout_child_element(
         self, child: Box, current_row: int, current_col: int
     ) -> Tuple[BoxInstance, int, int]:
         child_node = BoxInstance(

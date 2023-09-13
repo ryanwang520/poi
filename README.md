@@ -1,4 +1,4 @@
-# Poi: Make creating Excel XLSX files fun again.
+# Poi: The Declarative Way to Excel at Excel in Python
 
 ![CI](https://github.com/ryanwang520/poi/actions/workflows/tests.yaml/badge.svg)
 

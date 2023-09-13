@@ -392,7 +392,7 @@ class Table(Box, Generic[T]):
     def __init__(
         self,
         data: Collection[T],
-        columns: Collection[Any],
+        columns: Collection[dict[str, Any] | Tuple[str, str]],
         col_width: Union[int, None] = None,
         row_height: Union[Callable[..., Any], int, None] = None,
         border: Union[int, None] = None,

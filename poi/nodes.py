@@ -6,15 +6,10 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
     Generic,
     Iterable,
-    List,
     NamedTuple,
-    Optional,
-    Tuple,
     TypeVar,
-    Union,
 )
 
 try:
@@ -30,7 +25,7 @@ Direction = Literal["HORIZONTAL", "VERTICAL"]
 
 class BoxInstance:
     def __init__(
-        self, box: Box, row: int, col: int, parent: Optional[BoxInstance]
+        self, box: Box, row: int, col: int, parent: BoxInstance | None
     ) -> None:
         self.box = box
         self.row = row
@@ -70,7 +65,7 @@ Visitor = Callable[["Box"], None]
 
 class Box:
     instance: BoxInstance
-    parent: Optional[Box]
+    parent: Box | None
 
     def accept(self, visitor: Visitor) -> None:
         visitor(self)
@@ -103,13 +98,13 @@ class Box:
     def is_vertical(self) -> bool:
         return self.direction == "VERTICAL"
 
-    children: List[Box]
+    children: list[Box]
 
     def __init__(
         self,
-        children: Union[Iterable[Optional[Box]], Box, None] = None,
-        rowspan: Optional[int] = None,
-        colspan: Optional[int] = None,
+        children: Iterable[Box | None] | Box | None = None,
+        rowspan: int | None = None,
+        colspan: int | None = None,
         offset: int = 0,
         grow: bool = False,
         **kwargs: Any,
@@ -124,8 +119,7 @@ class Box:
             """Yield items from any nested iterable"""
             for x in items:
                 if isinstance(x, abc.Iterable) and not isinstance(x, (str, bytes)):
-                    for sub_x in flatten(x):
-                        yield sub_x
+                    yield from flatten(x)
                 else:
                     yield x
 
@@ -143,7 +137,7 @@ class Box:
         pass
 
     @property
-    def cell_format(self) -> Dict[str, Any]:
+    def cell_format(self) -> dict[str, Any]:
         return self.styles or {}
 
     def layout_child_element(
@@ -219,7 +213,7 @@ class Row(Box):
 
     def layout_child_element(
         self, child: Box, current_row: int, current_col: int
-    ) -> Tuple["BoxInstance", int, int]:
+    ) -> tuple[BoxInstance, int, int]:
         child_node = BoxInstance(
             child, current_row, current_col + child.offset, self.instance
         )
@@ -317,7 +311,7 @@ class Col(Box):
 
     def layout_child_element(
         self, child: Box, current_row: int, current_col: int
-    ) -> Tuple[BoxInstance, int, int]:
+    ) -> tuple[BoxInstance, int, int]:
         child_node = BoxInstance(
             child, current_row + child.offset, current_col, self.instance
         )
@@ -358,8 +352,8 @@ class Cell(PrimitiveBox):
         self,
         value: str,
         *args: Any,
-        width: Optional[int] = None,
-        height: Optional[int] = None,
+        width: int | None = None,
+        height: int | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
@@ -378,35 +372,33 @@ class Image(PrimitiveBox):
 
 class Column(NamedTuple):
     title: str
-    attr: Optional[str] = None
-    render: Optional[Callable[..., Any]] = None
-    width: Optional[int] = None
+    attr: str | None = None
+    render: Callable[..., Any] | None = None
+    width: int | None = None
     type: Literal["image", "text"] = "text"
-    options: Optional[Dict[str, Any]] = None
-    format: Optional[Dict[str, Any]] = None
+    options: dict[str, Any] | None = None
+    format: dict[str, Any] | None = None
 
 
 T = TypeVar("T")
 
 
 class Table(Box, Generic[T]):
-    columns: List[Column]
+    columns: list[Column]
 
     def __init__(
         self,
         data: Collection[T],
-        columns: Collection[dict[str, Any] | Tuple[str, str]],
-        col_width: Union[int, None] = None,
-        row_height: Union[Callable[..., Any], int, None] = None,
-        border: Union[int, None] = None,
-        cell_style: Union[
-            Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]],
-            str,
-            None,
-        ] = None,
-        datetime_format: Optional[str] = None,
-        date_format: Optional[str] = None,
-        time_format: Optional[str] = None,
+        columns: Collection[dict[str, Any] | tuple[str, str]],
+        col_width: int | None = None,
+        row_height: Callable[..., Any] | int | None = None,
+        border: int | None = None,
+        cell_style: (
+            dict[str, Callable[[T, Column], bool] | Callable[[T], bool]] | str | None
+        ) = None,
+        datetime_format: str | None = None,
+        date_format: str | None = None,
+        time_format: str | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:

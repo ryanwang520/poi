@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from io import BytesIO
-from typing import Any, List, Optional, Protocol
+from typing import Any, Protocol
 
 import xlsxwriter
 from xlsxwriter.format import Format
@@ -16,10 +16,10 @@ class WorkBook(Protocol):
     def add_format(self, format: dict[str, Any]) -> Format:
         ...
 
-    def worksheets(self) -> List[Worksheet]:
+    def worksheets(self) -> list[Worksheet]:
         ...
 
-    def add_worksheet(self, name: Optional[str] = None) -> Worksheet:
+    def add_worksheet(self, name: str | None = None) -> Worksheet:
         ...
 
 
@@ -43,7 +43,7 @@ class BytesIOWorkBook:
     def worksheets(self) -> Worksheet:
         return self.workbook.worksheets()
 
-    def add_worksheet(self, name: Optional[str] = None) -> Worksheet:
+    def add_worksheet(self, name: str | None = None) -> Worksheet:
         return self.workbook.add_worksheet(name)
 
 
@@ -52,7 +52,7 @@ class Writer:
         self,
         workbook: WorkBook,
         worksheet: Worksheet,
-        global_format: Optional[dict[str, Any]] = None,
+        global_format: dict[str, Any] | None = None,
     ) -> None:
         self.workbook = workbook
         self.worksheet = worksheet

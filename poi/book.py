@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from io import BytesIO
-from typing import List
 
 from .sheet import Sheet
 from .visitors.writer import writer_visitor
@@ -10,7 +9,7 @@ from .writer import BytesIOWorkBook, Writer
 
 class Book:
     def __init__(self) -> None:
-        self.sheets: List[Sheet] = []
+        self.sheets: list[Sheet] = []
 
     def add_sheet(self, worksheet: Sheet) -> None:
         self.sheets.append(worksheet)

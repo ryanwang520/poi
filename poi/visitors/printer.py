@@ -24,7 +24,7 @@ def _(self: Row):
 
 
 @print_visitor.register  # type: ignore
-def _(self: Table):
+def _(self: Table):  # type: ignore
     print(f"write Table at {self.row}:{self.col}")
 
 

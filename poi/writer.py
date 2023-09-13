@@ -59,7 +59,7 @@ class Writer:
             self.workbook.add_format(global_format) if global_format else None
         )
         self.global_format_dict = global_format or {}
-        self.formats = {}
+        self.formats: dict[str, Any] = {}
 
     def _calc_format(self, cell_format: Any) -> Any:
         if not cell_format:

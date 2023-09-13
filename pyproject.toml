@@ -61,3 +61,11 @@ exclude = '''
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
+
+[tool.ruff]
+
+ignore = [
+    "E501",  # Line too long managed by black
+
+]
+target-version = "py38"

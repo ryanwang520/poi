@@ -10,13 +10,17 @@ from typing import (
     Generic,
     Iterable,
     List,
-    Literal,
     NamedTuple,
     Optional,
     Tuple,
     TypeVar,
     Union,
 )
+
+try:
+    from typing_extensions import Literal
+except ImportError:
+    from typing import Literal  # type: ignore
 
 logger = logging.getLogger("poi")
 logger.addHandler(logging.NullHandler())
@@ -26,7 +30,7 @@ Direction = Literal["HORIZONTAL", "VERTICAL"]
 
 class BoxInstance:
     def __init__(
-        self, box: "Box", row: int, col: int, parent: Optional[BoxInstance]
+        self, box: Box, row: int, col: int, parent: Optional[BoxInstance]
     ) -> None:
         self.box = box
         self.row = row
@@ -61,11 +65,14 @@ class BoxInstance:
 _NotDetermined = object()
 
 
+Visitor = Callable[["Box"], None]
+
+
 class Box:
     instance: BoxInstance
-    parent: Optional["Box"]
+    parent: Optional[Box]
 
-    def accept(self, visitor: Any) -> None:
+    def accept(self, visitor: Visitor) -> None:
         visitor(self)
 
     @property
@@ -96,11 +103,11 @@ class Box:
     def is_vertical(self) -> bool:
         return self.direction == "VERTICAL"
 
-    children: List["Box"]
+    children: List[Box]
 
     def __init__(
         self,
-        children: Union[Iterable[Optional["Box"]], "Box", None] = None,
+        children: Union[Iterable[Optional[Box]], Box, None] = None,
         rowspan: Optional[int] = None,
         colspan: Optional[int] = None,
         offset: int = 0,
@@ -137,8 +144,7 @@ class Box:
 
     @property
     def cell_format(self) -> Dict[str, Any]:
-        styles = self.styles or {}
-        return styles
+        return self.styles or {}
 
     def process_child(self, child: Box, current_row: int, current_col: int) -> Any:
         raise ValueError(f"not support type for {self}")

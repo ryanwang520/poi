@@ -1,7 +1,7 @@
 from functools import singledispatch
 from typing import Any
 
-from ..nodes import Col, Row, Table, Cell, Image
+from ..nodes import Cell, Col, Image, Row, Table
 
 
 @singledispatch

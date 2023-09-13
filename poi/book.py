@@ -3,9 +3,9 @@ from __future__ import annotations
 from io import BytesIO
 from typing import List
 
-from . import Sheet
+from .sheet import Sheet
 from .visitors.writer import writer_visitor
-from .writer import Writer, BytesIOWorkBook
+from .writer import BytesIOWorkBook, Writer
 
 
 class Book:

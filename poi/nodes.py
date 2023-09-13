@@ -1,23 +1,22 @@
 from __future__ import annotations
-from collections import abc
-from typing import (
-    Optional,
-    Tuple,
-    NamedTuple,
-    Callable,
-    Dict,
-    Union,
-    TypeVar,
-    Generic,
-    Iterable,
-    Collection,
-    Any,
-    List,
-)
-
-from typing import Literal
 
 import logging
+from collections import abc
+from typing import (
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    Generic,
+    Iterable,
+    List,
+    Literal,
+    NamedTuple,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 logger = logging.getLogger("poi")
 logger.addHandler(logging.NullHandler())

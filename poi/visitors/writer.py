@@ -1,12 +1,11 @@
-from functools import singledispatch
 import datetime
 import re
+from functools import singledispatch
 from inspect import signature
 from typing import Any, Callable, Dict
 
+from ..nodes import Cell, Col, Image, Row, Table
 from ..utils import get_obj_attr
-
-from ..nodes import Row, Col, Table, Cell, Image
 from ..writer import Writer
 
 

@@ -1,15 +1,15 @@
 from __future__ import annotations
+
 from io import BytesIO
+from typing import Any, List, Optional, Union
 
 from xlsxwriter import Workbook
 from xlsxwriter.worksheet import Worksheet
 
-from typing import Union, List, Any, Optional
-
 from .nodes import Box, BoxInstance, Col
 from .visitors.printer import print_visitor
 from .visitors.writer import writer_visitor
-from .writer import Writer, BytesIOWorkBook
+from .writer import BytesIOWorkBook, Writer
 
 
 class Sheet:

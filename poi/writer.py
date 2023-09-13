@@ -1,12 +1,13 @@
 from __future__ import annotations
+
+import json
+import logging
 from io import BytesIO
-from typing import Protocol, List, Any, Optional
+from typing import Any, List, Optional, Protocol
 
 import xlsxwriter
 from xlsxwriter.format import Format
 from xlsxwriter.worksheet import Worksheet
-import json
-import logging
 
 logger = logging.getLogger(__name__)
 

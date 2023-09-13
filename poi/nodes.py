@@ -44,7 +44,7 @@ class BoxInstance:
         if not children:
             return
         children = [
-            Cell(child) if isinstance(child, str) else child for child in children  # type: ignore
+            Cell(child) if isinstance(child, str) else child for child in children
         ]
 
         self.children = []
@@ -52,7 +52,7 @@ class BoxInstance:
         current_row = self.row
         current_col = self.col
         for child in children:
-            child.styles = {**child.styles, **self.box.styles}  # type: ignore
+            child.styles = {**child.styles, **self.box.styles}
             self.box.add_child_span(
                 child, neighbours=[c for c in children if c is not child]
             )
@@ -132,7 +132,7 @@ class Box:
             children = [child for child in flatten(children or []) if child is not None]
         self.children = children  # type: ignore
         for child in self.children:
-            child.parent = self  # type: ignore
+            child.parent = self
         self.styles = kwargs
         self.instance = None  # type: ignore
 

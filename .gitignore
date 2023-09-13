@@ -108,7 +108,6 @@ migrations
 .DS_Store
 pip-wheel-metadata
 logs
-poetry.lock
 
 # excel
 

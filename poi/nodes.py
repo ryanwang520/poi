@@ -15,10 +15,7 @@ from typing import (
     List,
 )
 
-try:
-    from typing_extensions import Literal
-except ImportError:
-    from typing import Literal  # type: ignore
+from typing import Literal
 
 import logging
 

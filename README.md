@@ -2,11 +2,11 @@
 
 ![CI](https://github.com/ryanwang520/poi/actions/workflows/tests.yaml/badge.svg)
 
-Poi helps you write Excel sheet in a declarative way, ensuring you have a better Excel writing experience.
+## Why Poi?
 
-It only supports Python 3.8+.
+Creating Excel files programmatically has always been a chore. Current libraries offer limited flexibility, especially when you need more than a basic table. That's where Poi comes in, offering you a simple, intuitive, yet powerful DSL to make Excel files exactly the way you want them.
 
-[Documentation](https://ryanwang520.github.io/poi/)
+
 
 ## Installation
 
@@ -32,7 +32,8 @@ sheet.write('hello.xlsx')
 See, it's pretty simple and clear.
 
 
-### Sample for rendering a simple table.
+### Create a Dynamic Table with Conditional Formatting
+
 
 ```python
 from typing import NamedTuple
@@ -88,4 +89,19 @@ sheet = Sheet(
 sheet.write("table.xlsx")
 ```
 
+
 ![table](https://github.com/baoshishu/poi/raw/master/docs/assets/table.png)
+
+See how simple it is to create complex tables? You just wrote a dynamic Excel table with conditional formatting a few lines of code!
+
+
+### Features
+
+* 🎉 Declarative: Create Excel files with a simple, intuitive DSL.
+* 🔥 Fast: Export large Excel files in seconds.
+* 🚀 Flexible Layouts: Create any layout you can imagine with our intuitive Row and Col primitives.
+
+
+### Documentation
+
+For more details, check our comprehensive [Documentation](https://ryanwang520.github.io/poi/)

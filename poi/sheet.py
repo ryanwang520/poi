@@ -51,10 +51,6 @@ class Sheet:
         workbook.close()
         return workbook.io
 
-    # old compat
-    def write_to_bytesio(self) -> BytesIO:
-        return self.write_to_bytes_io()
-
     def write(self, filename: str) -> None:
         io = self.write_to_bytes_io()
         with open(filename, "wb") as f:

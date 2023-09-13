@@ -1,12 +1,11 @@
-from functools import singledispatch
 import datetime
 import re
+from functools import singledispatch
 from inspect import signature
 from typing import Any, Callable, Dict
 
+from ..nodes import Cell, Col, Image, Row, Table
 from ..utils import get_obj_attr
-
-from ..nodes import Row, Col, Table, Cell, Image
 from ..writer import Writer
 
 
@@ -16,7 +15,14 @@ def call_by_sig(fn: Callable[..., Any], *args: Any) -> Any:
     return fn(*args[:arg_length])
 
 
-def writer_visitor(writer: Writer) -> Any:
+def writer_visitor(writer: Writer, fast=False) -> Any:
+    EMPTY_VALUES = (None, "")
+
+    def should_write(value: object) -> bool:
+        if not fast:
+            return True
+        return value not in EMPTY_VALUES
+
     @singledispatch
     def visitor(_: Any) -> None:
         pass
@@ -88,7 +94,10 @@ def writer_visitor(writer: Writer) -> Any:
                 if column.type == "image":
                     writer.insert_image(row + i + 1, col + j, val, column.options)
                 else:
-                    writer.write(row + i + 1, col + j, val, {**self.cell_format, **fmt})
+                    if should_write(val):
+                        writer.write(
+                            row + i + 1, col + j, val, {**self.cell_format, **fmt}
+                        )
 
     @visitor.register
     def _(self: Image) -> None:
@@ -102,6 +111,8 @@ def writer_visitor(writer: Writer) -> Any:
             writer.worksheet.set_column(self.col, self.col + colspan - 1, self.width)
         if rowspan == 1 and self.height:
             writer.worksheet.set_row(self.row, self.height)
+        if not should_write(self.value):
+            return
         if colspan == 1 and rowspan == 1:
             writer.write(self.row, self.col, self.value, self.cell_format)
         else:

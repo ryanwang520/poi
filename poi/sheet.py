@@ -1,30 +1,32 @@
 from __future__ import annotations
+
 from io import BytesIO
+from typing import Any
 
 from xlsxwriter import Workbook
 from xlsxwriter.worksheet import Worksheet
 
-from typing import Union, List, Any, Optional
-
 from .nodes import Box, BoxInstance, Col
 from .visitors.printer import print_visitor
 from .visitors.writer import writer_visitor
-from .writer import Writer, BytesIOWorkBook
+from .writer import BytesIOWorkBook, Writer
 
 
 class Sheet:
     def __init__(
         self,
-        root: Union[Box, List[Box]],
+        root: Box | list[Box],
         start_row: int = 0,
         start_col: int = 0,
-        global_format: Optional[dict[str, Any]] = None,
+        global_format: dict[str, Any] | None = None,
+        fast: bool = False,
     ):
         if isinstance(root, list):
             root = Col(children=root)
         BoxInstance(root, start_row, start_col, None)
         self.root = root
         self.global_format = global_format
+        self.fast = fast
 
     @classmethod
     def attach_to_exist_worksheet(
@@ -34,11 +36,11 @@ class Sheet:
         root: Box,
         start_row: int = 0,
         start_col: int = 0,
-        global_format: Optional[dict[str, Any]] = None,
+        global_format: dict[str, Any] | None = None,
     ) -> Writer:
         sheet = cls(root, start_row, start_col)
         writer = Writer(workbook, worksheet, global_format=global_format)
-        visitor = writer_visitor(writer)
+        visitor = writer_visitor(writer, fast=sheet.fast)
         sheet.root.accept(visitor)
         return writer
 
@@ -46,14 +48,10 @@ class Sheet:
         workbook = BytesIOWorkBook()
         worksheet = workbook.add_worksheet()
         writer = Writer(workbook, worksheet, self.global_format)
-        visitor = writer_visitor(writer)
+        visitor = writer_visitor(writer, fast=self.fast)
         self.root.accept(visitor)
         workbook.close()
         return workbook.io
-
-    # old compat
-    def write_to_bytesio(self) -> BytesIO:
-        return self.write_to_bytes_io()
 
     def write(self, filename: str) -> None:
         io = self.write_to_bytes_io()

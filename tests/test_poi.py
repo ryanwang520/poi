@@ -1,14 +1,14 @@
 import datetime
-from pathlib import Path
 import os
+from pathlib import Path
 from typing import NamedTuple
 
-from poi import __version__, Sheet, Col, Row, Cell, Table
+from poi import Cell, Col, Row, Sheet, Table, __version__
 from poi.nodes import Image
 
 
 def test_version():
-    assert __version__ == "1.0.2"
+    assert __version__ == "1.1.0"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):

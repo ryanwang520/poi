@@ -1,26 +1,21 @@
 from __future__ import annotations
+
+import logging
 from collections import abc
 from typing import (
-    Optional,
-    Tuple,
-    NamedTuple,
+    Any,
     Callable,
-    Dict,
-    Union,
-    TypeVar,
+    Collection,
     Generic,
     Iterable,
-    Collection,
-    Any,
-    List,
+    NamedTuple,
+    TypeVar,
 )
 
 try:
     from typing_extensions import Literal
 except ImportError:
     from typing import Literal  # type: ignore
-
-import logging
 
 logger = logging.getLogger("poi")
 logger.addHandler(logging.NullHandler())
@@ -30,7 +25,7 @@ Direction = Literal["HORIZONTAL", "VERTICAL"]
 
 class BoxInstance:
     def __init__(
-        self, box: "Box", row: int, col: int, parent: Optional[BoxInstance]
+        self, box: Box, row: int, col: int, parent: BoxInstance | None
     ) -> None:
         self.box = box
         self.row = row
@@ -56,7 +51,7 @@ class BoxInstance:
             self.box.add_child_span(
                 child, neighbours=[c for c in children if c is not child]
             )
-            child_node, current_row, current_col = self.box.process_child(
+            child_node, current_row, current_col = self.box.layout_child_element(
                 child, current_row, current_col
             )
             self.children.append(child_node)
@@ -65,11 +60,14 @@ class BoxInstance:
 _NotDetermined = object()
 
 
+Visitor = Callable[["Box"], None]
+
+
 class Box:
     instance: BoxInstance
-    parent: Optional["Box"]
+    parent: Box | None
 
-    def accept(self, visitor: Any) -> None:
+    def accept(self, visitor: Visitor) -> None:
         visitor(self)
 
     @property
@@ -100,13 +98,13 @@ class Box:
     def is_vertical(self) -> bool:
         return self.direction == "VERTICAL"
 
-    children: List["Box"]
+    children: list[Box]
 
     def __init__(
         self,
-        children: Union[Iterable[Optional["Box"]], "Box", None] = None,
-        rowspan: Optional[int] = None,
-        colspan: Optional[int] = None,
+        children: Iterable[Box | None] | Box | None = None,
+        rowspan: int | None = None,
+        colspan: int | None = None,
         offset: int = 0,
         grow: bool = False,
         **kwargs: Any,
@@ -121,8 +119,7 @@ class Box:
             """Yield items from any nested iterable"""
             for x in items:
                 if isinstance(x, abc.Iterable) and not isinstance(x, (str, bytes)):
-                    for sub_x in flatten(x):
-                        yield sub_x
+                    yield from flatten(x)
                 else:
                     yield x
 
@@ -140,11 +137,12 @@ class Box:
         pass
 
     @property
-    def cell_format(self) -> Dict[str, Any]:
-        styles = self.styles or {}
-        return styles
+    def cell_format(self) -> dict[str, Any]:
+        return self.styles or {}
 
-    def process_child(self, child: Box, current_row: int, current_col: int) -> Any:
+    def layout_child_element(
+        self, child: Box, current_row: int, current_col: int
+    ) -> Any:
         raise ValueError(f"not support type for {self}")
 
     def __repr__(self) -> str:
@@ -173,7 +171,7 @@ class Box:
     def assert_children_bound(self) -> None:
         assert all(child.instance for child in self.children)
 
-    def figure_out_cols(self, raises: bool = True) -> Any:
+    def calculate_column_span(self, raises: bool = True) -> Any:
         if self.colspan:
             return self.colspan + self.offset
         if self.grow:
@@ -186,12 +184,12 @@ class Box:
                 if max_col < child.colspan:
                     max_col = child.colspan
             else:
-                col = child.figure_out_cols(raises=raises)
+                col = child.calculate_column_span(raises=raises)
                 if col is not _NotDetermined and col > max_col:
                     max_col = col
         return max_col + self.offset
 
-    def figure_out_rows(self, raises: bool = True) -> Any:
+    def calculate_row_span(self, raises: bool = True) -> Any:
         if self.rowspan:
             return self.rowspan + self.offset
         if self.grow:
@@ -204,7 +202,7 @@ class Box:
                 if max_row < child.rowspan:
                     max_row = child.rowspan
             else:
-                row = child.figure_out_rows(raises=raises)
+                row = child.calculate_row_span(raises=raises)
                 if row is not _NotDetermined and row > max_row:
                     max_row = row
         return max_row + self.offset
@@ -213,9 +211,9 @@ class Box:
 class Row(Box):
     colspan: int
 
-    def process_child(
+    def layout_child_element(
         self, child: Box, current_row: int, current_col: int
-    ) -> Tuple["BoxInstance", int, int]:
+    ) -> tuple[BoxInstance, int, int]:
         child_node = BoxInstance(
             child, current_row, current_col + child.offset, self.instance
         )
@@ -238,7 +236,8 @@ class Row(Box):
                 neighbor_with_cols = [child for child in parent.children if child]
                 if neighbor_with_cols:
                     neighbour_cols = [
-                        n.figure_out_cols(raises=False) for n in neighbor_with_cols
+                        n.calculate_column_span(raises=False)
+                        for n in neighbor_with_cols
                     ]
                     valid_cols = [
                         col for col in neighbour_cols if col is not _NotDetermined
@@ -252,7 +251,7 @@ class Row(Box):
             child.colspan = (
                 self.colspan
                 - child.offset
-                - sum(c.figure_out_cols() for c in neighbours)
+                - sum(c.calculate_column_span() for c in neighbours)
             )
 
     @property
@@ -293,7 +292,7 @@ class Col(Box):
                 neighbor_with_rows = [child for child in parent.children if child]
                 if neighbor_with_rows:
                     neighbour_rows = [
-                        n.figure_out_rows(raises=False) for n in neighbor_with_rows
+                        n.calculate_row_span(raises=False) for n in neighbor_with_rows
                     ]
                     valid_rows = [
                         row for row in neighbour_rows if row is not _NotDetermined
@@ -307,12 +306,12 @@ class Col(Box):
             child.rowspan = (
                 self.rowspan
                 - child.offset
-                - sum(c.figure_out_rows() for c in neighbours)
+                - sum(c.calculate_row_span() for c in neighbours)
             )
 
-    def process_child(
+    def layout_child_element(
         self, child: Box, current_row: int, current_col: int
-    ) -> Tuple[BoxInstance, int, int]:
+    ) -> tuple[BoxInstance, int, int]:
         child_node = BoxInstance(
             child, current_row + child.offset, current_col, self.instance
         )
@@ -353,8 +352,8 @@ class Cell(PrimitiveBox):
         self,
         value: str,
         *args: Any,
-        width: Optional[int] = None,
-        height: Optional[int] = None,
+        width: int | None = None,
+        height: int | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
@@ -373,35 +372,33 @@ class Image(PrimitiveBox):
 
 class Column(NamedTuple):
     title: str
-    attr: Optional[str] = None
-    render: Optional[Callable[..., Any]] = None
-    width: Optional[int] = None
+    attr: str | None = None
+    render: Callable[..., Any] | None = None
+    width: int | None = None
     type: Literal["image", "text"] = "text"
-    options: Optional[Dict[str, Any]] = None
-    format: Optional[Dict[str, Any]] = None
+    options: dict[str, Any] | None = None
+    format: dict[str, Any] | None = None
 
 
 T = TypeVar("T")
 
 
 class Table(Box, Generic[T]):
-    columns: List[Column]
+    columns: list[Column]
 
     def __init__(
         self,
         data: Collection[T],
-        columns: Collection[Any],
-        col_width: Union[int, None] = None,
-        row_height: Union[Callable[..., Any], int, None] = None,
-        border: Union[int, None] = None,
-        cell_style: Union[
-            Dict[str, Union[Callable[[T, Column], bool], Callable[[T], bool]]],
-            str,
-            None,
-        ] = None,
-        datetime_format: Optional[str] = None,
-        date_format: Optional[str] = None,
-        time_format: Optional[str] = None,
+        columns: Collection[dict[str, Any] | tuple[str, str]],
+        col_width: int | None = None,
+        row_height: Callable[..., Any] | int | None = None,
+        border: int | None = None,
+        cell_style: (
+            dict[str, Callable[[T, Column], bool] | Callable[[T], bool]] | str | None
+        ) = None,
+        datetime_format: str | None = None,
+        date_format: str | None = None,
+        time_format: str | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:

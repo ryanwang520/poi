@@ -53,7 +53,8 @@ def writer_visitor(writer: Writer, fast=False) -> Any:
             width = column.width or self.col_width
             if width:
                 writer.worksheet.set_column(self.col + i, self.col + i, width)
-            writer.write(row, col + i, column.title, self.cell_format)
+            if should_write(column.title):
+                writer.write(row, col + i, column.title, self.cell_format)
 
         for i, item in enumerate(self.data):
 

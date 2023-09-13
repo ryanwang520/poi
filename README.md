@@ -4,7 +4,7 @@
 
 Poi helps you write Excel sheet in a declarative way, ensuring you have a better Excel writing experience.
 
-It only supports Python 3.7+.
+It only supports Python 3.8+.
 
 [Documentation](https://ryanwang520.github.io/poi/)
 

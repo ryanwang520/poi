@@ -15,7 +15,7 @@ def call_by_sig(fn: Callable[..., Any], *args: Any) -> Any:
     return fn(*args[:arg_length])
 
 
-def writer_visitor(writer: Writer, fast=False) -> Any:
+def writer_visitor(writer: Writer, fast: bool = False) -> Any:
     EMPTY_VALUES = (None, "")
 
     def should_write(value: object) -> bool:

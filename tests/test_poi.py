@@ -3,12 +3,8 @@ import os
 from pathlib import Path
 from typing import NamedTuple
 
-from poi import Cell, Col, Row, Sheet, Table, __version__
+from poi import Cell, Col, Row, Sheet, Table
 from poi.nodes import Image
-
-
-def test_version():
-    assert __version__ == "1.1.3"
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):

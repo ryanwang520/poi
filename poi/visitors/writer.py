@@ -69,33 +69,35 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                 return rv
 
             for j, column in enumerate(self.columns):
-                fmt = {}
-                if isinstance(self.cell_style, str):
-                    fmt.update(format_from_style(self.cell_style))
-
-                else:
-                    for styles, condition in self.cell_style.items():
-                        if call_by_sig(condition, item, column):
-                            fmt.update(format_from_style(styles))
                 if column.attr:
                     val = get_obj_attr(item, column.attr)
                 else:
                     assert column.render
                     val = call_by_sig(column.render, item, column)
-                if isinstance(val, datetime.datetime):
-                    fmt["num_format"] = self.datetime_format or "yyyy-mm-dd hh:mm:ss"
-                if isinstance(val, datetime.date):
-                    fmt["num_format"] = self.date_format or "yyyy-mm-dd"
-                if isinstance(val, datetime.time):
-                    fmt["num_format"] = self.time_format or "hh:mm:ss"
-
-                if column.format:
-                    fmt.update(column.format)
 
                 if column.type == "image":
                     writer.insert_image(row + i + 1, col + j, val, column.options)
                 else:
                     if should_write(val):
+                        fmt = {}
+                        if isinstance(self.cell_style, str):
+                            fmt.update(format_from_style(self.cell_style))
+
+                        else:
+                            for styles, condition in self.cell_style.items():
+                                if call_by_sig(condition, item, column):
+                                    fmt.update(format_from_style(styles))
+                        if isinstance(val, datetime.datetime):
+                            fmt["num_format"] = (
+                                self.datetime_format or "yyyy-mm-dd hh:mm:ss"
+                            )
+                        if isinstance(val, datetime.date):
+                            fmt["num_format"] = self.date_format or "yyyy-mm-dd"
+                        if isinstance(val, datetime.time):
+                            fmt["num_format"] = self.time_format or "hh:mm:ss"
+
+                        if column.format:
+                            fmt.update(column.format)
                         writer.write(
                             row + i + 1, col + j, val, {**self.cell_format, **fmt}
                         )

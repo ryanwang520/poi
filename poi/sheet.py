@@ -53,6 +53,11 @@ class Sheet:
         workbook.close()
         return workbook.io
 
+    def write_to_worksheet(self, workbook, worksheet):
+        writer = Writer(workbook, worksheet, self.global_format)
+        visitor = writer_visitor(writer, fast=self.fast)
+        self.root.accept(visitor)
+
     def write(self, filename: str) -> None:
         io = self.write_to_bytes_io()
         with open(filename, "wb") as f:

@@ -53,7 +53,7 @@ class Sheet:
         workbook.close()
         return workbook.io
 
-    def write_to_worksheet(self, workbook, worksheet):
+    def write_to_worksheet(self, workbook: Workbook, worksheet: Worksheet) -> None:
         writer = Writer(workbook, worksheet, self.global_format)
         visitor = writer_visitor(writer, fast=self.fast)
         self.root.accept(visitor)

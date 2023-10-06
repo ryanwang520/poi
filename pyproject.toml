@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-xlsxwriter = "^1.1"
+xlsxwriter = "^3.0"
 
 
 [tool.poetry.dev-dependencies]

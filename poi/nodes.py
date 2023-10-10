@@ -350,7 +350,7 @@ class PrimitiveBox(Box):
 class Cell(PrimitiveBox):
     def __init__(
         self,
-        value: str,
+        value: str | int | float,
         *args: Any,
         width: int | None = None,
         height: int | None = None,

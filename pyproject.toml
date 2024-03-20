@@ -36,7 +36,7 @@ mkdocs-material = "^9.1.2"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.289"
 mypy = "^1.5.1"
-black = "^23.9.1"
+black = ">=23.9.1,<25.0.0"
 typing-extensions = "^4.7.1"
 mkdocs = "^1.5.2"
 mkdocs-material = "^9.3.1"

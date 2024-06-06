@@ -257,7 +257,7 @@ class Row(Box):
     @property
     def cols(self) -> int:
         """
-        cols and row can only be accessed if all chilren are bound to instance
+        cols and row can only be accessed if all children are bound to instance
         """
         offset = self.offset if self.is_horizontal else 0
         if self.colspan:

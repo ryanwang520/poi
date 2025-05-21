@@ -1,5 +1,6 @@
-from poi.utils import get_obj_attr
 from types import SimpleNamespace as Obj
+
+from poi.utils import get_obj_attr
 
 
 def test_get_obj_attr():
@@ -14,11 +15,11 @@ def test_get_obj_attr():
 
 
 def test_get_obj_attr_for_dict():
-    obj = dict(foo=dict(bar=dict(moo=14)))
+    obj = {"foo": {"bar": {"moo": 14}}}
     assert get_obj_attr(obj, "foo.bar.moo") == 14
 
-    obj = dict(foo=None)
+    obj = {"foo": None}
     assert get_obj_attr(obj, "foo?.bar") is None
 
-    obj = dict(foo=dict(bar=None))
+    obj = {"foo": {"bar": None}}
     assert get_obj_attr(obj, "foo?.bar?.moo") is None

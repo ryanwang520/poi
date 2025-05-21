@@ -116,7 +116,7 @@ class Box:
         self.grow = grow
 
         def flatten(items: Any) -> Iterable[Any]:
-            """Yield items from any nested iterable"""
+            """Yield items from any nested iterable."""
             for x in items:
                 if isinstance(x, abc.Iterable) and not isinstance(x, (str, bytes)):
                     yield from flatten(x)
@@ -256,9 +256,7 @@ class Row(Box):
 
     @property
     def cols(self) -> int:
-        """
-        cols and row can only be accessed if all children are bound to instance
-        """
+        """Cols and row can only be accessed if all children are bound to instance."""
         offset = self.offset if self.is_horizontal else 0
         if self.colspan:
             return self.colspan + offset

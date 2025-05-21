@@ -5,19 +5,20 @@ p = re.compile(r"(\?)?\.")
 
 
 def get_obj_attr(obj: object, field: str) -> Any:
-    """Retrieve nested attribute or dictionary key from an object based on a field string.
+    """Retrieve nested attribute or dictionary key from an object based on a field
+       string.
 
     Parameters
     ----------
     - obj (object): The object or dictionary from which to extract the attribute or key.
     - field (str): The string specifying the nested attributes or keys, separated by '.'
-                   and/or '?.' where '?.' performs safe navigation, returning None if the
-                   attribute is not found.
+                   and/or '?.' where '?.' performs safe navigation, returning None if
+                   the attribute is not found.
 
     Returns
     -------
-    - Any: The value of the nested attribute or key. Returns None if the attribute is not
-           found and safe navigation '?.' is used.
+    - Any: The value of the nested attribute or key. Returns None if the attribute is
+      not found and safe navigation '?.' is used.
 
     Examples
     --------

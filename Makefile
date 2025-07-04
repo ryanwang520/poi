@@ -1,8 +1,8 @@
 .PHONY:  help flake8 test migrate mysql mysql shell bash debug rebuild publish docs
 
 publish:
-	hatch build
-	hatch publish
+	uv build
+	uv publish
 
 update_snapshot:
 	uv run pytest --update-snapshot

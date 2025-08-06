@@ -55,6 +55,12 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                 writer.worksheet.set_column(self.col + i, self.col + i, width)
             if should_write(column.title):
                 writer.write(row, col + i, column.title, self.cell_format)
+                # Write comment for header if present
+                if column.title_comment:
+                    comment_opts = column.title_comment_options or {}
+                    writer.worksheet.write_comment(
+                        row, col + i, column.title_comment, comment_opts
+                    )
 
         for i, item in enumerate(self.data):
 
@@ -126,6 +132,12 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                 self.col + colspan - 1,
                 self.value,
                 self.cell_format,
+            )
+
+        # Write comment if present
+        if self.comment:
+            writer.worksheet.write_comment(
+                self.row, self.col, self.comment, self.comment_options
             )
 
     return visitor

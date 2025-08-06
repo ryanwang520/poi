@@ -9,6 +9,7 @@ from typing import (
     Generic,
     Iterable,
     NamedTuple,
+    TypedDict,
     TypeVar,
 )
 
@@ -224,9 +225,9 @@ class Row(Box):
         if not child.rowspan:
             child.rowspan = self.rowspan
         if child.grow:
-            assert all(
-                not c.grow for c in neighbours
-            ), "only one col in a row can have grow attr"
+            assert all(not c.grow for c in neighbours), (
+                "only one col in a row can have grow attr"
+            )
             if not self.colspan:
                 if self.instance.parent:
                     parent = self.instance.parent.box
@@ -279,9 +280,9 @@ class Col(Box):
         if not child.colspan:
             child.colspan = self.colspan
         if child.grow:
-            assert all(
-                not c.grow for c in neighbours
-            ), "only one row in a col can have grow attr"
+            assert all(not c.grow for c in neighbours), (
+                "only one row in a col can have grow attr"
+            )
             if not self.rowspan:
                 if self.instance.parent:
                     parent = self.instance.parent.box
@@ -352,12 +353,16 @@ class Cell(PrimitiveBox):
         *args: Any,
         width: int | None = None,
         height: int | None = None,
+        comment: str | None = None,
+        comment_options: CommentOptions | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.value = value
         self.height = height
         self.width = width
+        self.comment = comment
+        self.comment_options = comment_options or {}
 
 
 class Image(PrimitiveBox):
@@ -368,6 +373,14 @@ class Image(PrimitiveBox):
         self.options = options
 
 
+class CommentOptions(TypedDict, total=False):
+    author: str
+    visible: bool
+    x_scale: float
+    y_scale: float
+    color: str
+
+
 class Column(NamedTuple):
     title: str
     attr: str | None = None
@@ -376,6 +389,8 @@ class Column(NamedTuple):
     type: Literal["image", "text"] = "text"
     options: dict[str, Any] | None = None
     format: dict[str, Any] | None = None
+    title_comment: str | None = None
+    title_comment_options: CommentOptions | None = None
 
 
 T = TypeVar("T")
@@ -413,6 +428,12 @@ class Table(Box, Generic[T]):
         for col in columns:
             assert isinstance(col, (tuple, dict))
             if isinstance(col, tuple):
+                # Only support 2-tuple: (attr, title)
+                if len(col) != 2:
+                    raise ValueError(
+                        f"Tuple must have exactly 2 elements (attr, title), "
+                        f"got {len(col)}"
+                    )
                 item = Column(attr=col[0], title=col[1])
             else:
                 item = Column(
@@ -423,6 +444,8 @@ class Table(Box, Generic[T]):
                     render=col.get("render"),
                     width=col.get("width"),
                     format=col.get("format"),
+                    title_comment=col.get("title_comment"),
+                    title_comment_options=col.get("title_comment_options"),
                 )
             self.columns.append(item)
 

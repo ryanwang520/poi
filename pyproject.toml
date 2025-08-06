@@ -1,6 +1,6 @@
 [project]
 name = "poi"
-version = "1.1.7"
+version = "1.2.0"
 description = "Write Excel XLSX declaratively."
 authors = [
 { name = "Ryan Wang", email = " hwwangwang@gmail.com" },
@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://github.com/baoshishu/poi"
 repository = "https://github.com/baoshishu/poi"
 documentation = "https://baoshishu.github.io/poi/"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 
 
@@ -19,14 +19,13 @@ keywords = ["xlsx", "xlswriter", "excel", "declarative"]
 classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "xlsxwriter>=3.2.3",
+    "xlsxwriter>=3.2.5",
 ]
 
 [build-system]
@@ -37,14 +36,17 @@ build-backend = "uv_build"
 dev = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.14",
-    "mypy>=1.14.1",
-    "pytest>=8.3.5",
-    "ruff>=0.11.10",
-    "typing-extensions>=4.13.2",
+    "mypy>=1.17.1",
+    "pytest>=8.4.1",
+    "ruff>=0.12.7",
+    "typing-extensions>=4.14.1",
 ]
 
 
 [tool.ruff]
+target-version = "py39"
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "F",  # pyflakes
@@ -52,8 +54,15 @@ select = [
     "C4", # flake8-comprehensions
     "I", # isort
 ]
-target-version = "py38"
 
+[tool.mypy]
+python_version = "3.9"
+strict = true
+exclude = "tests"
+
+[[tool.mypy.overrides]]
+module = "xlsxwriter.*"
+ignore_missing_imports = true
 
 [tool.uv.build-backend]
 module-root = ""

@@ -92,6 +92,48 @@ def test_table(pytestconfig):
         assert_match_snapshot(sheet, "table.xlsx")
 
 
+def test_cell_comment(pytestconfig):
+    sheet = Sheet(
+        root=Col(
+            children=[
+                Row(
+                    children=[
+                        Cell(
+                            "Cell with comment",
+                            comment="This is a comment",
+                            comment_options={"author": "Test User", "visible": True},
+                            border=1,
+                        ),
+                        Cell(
+                            "Cell without comment",
+                            border=1,
+                        ),
+                    ]
+                ),
+                Row(
+                    children=[
+                        Cell(
+                            "Another comment",
+                            comment="Multi-line\ncomment example",
+                            comment_options={
+                                "author": "Developer",
+                                "x_scale": 1.5,
+                                "y_scale": 1.2,
+                                "color": "#FFFF00",
+                            },
+                            border=1,
+                        ),
+                    ]
+                ),
+            ]
+        )
+    )
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.write("tests/__snapshots__/comment.xlsx")
+    else:
+        assert_match_snapshot(sheet, "comment.xlsx")
+
+
 def test_complex_row(pytestconfig):
     sheet = Sheet(
         root=Col(

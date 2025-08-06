@@ -128,4 +128,10 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                 self.cell_format,
             )
 
+        # Write comment if present
+        if self.comment:
+            writer.worksheet.write_comment(
+                self.row, self.col, self.comment, self.comment_options
+            )
+
     return visitor

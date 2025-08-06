@@ -224,9 +224,9 @@ class Row(Box):
         if not child.rowspan:
             child.rowspan = self.rowspan
         if child.grow:
-            assert all(
-                not c.grow for c in neighbours
-            ), "only one col in a row can have grow attr"
+            assert all(not c.grow for c in neighbours), (
+                "only one col in a row can have grow attr"
+            )
             if not self.colspan:
                 if self.instance.parent:
                     parent = self.instance.parent.box
@@ -279,9 +279,9 @@ class Col(Box):
         if not child.colspan:
             child.colspan = self.colspan
         if child.grow:
-            assert all(
-                not c.grow for c in neighbours
-            ), "only one row in a col can have grow attr"
+            assert all(not c.grow for c in neighbours), (
+                "only one row in a col can have grow attr"
+            )
             if not self.rowspan:
                 if self.instance.parent:
                     parent = self.instance.parent.box
@@ -352,12 +352,16 @@ class Cell(PrimitiveBox):
         *args: Any,
         width: int | None = None,
         height: int | None = None,
+        comment: str | None = None,
+        comment_options: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.value = value
         self.height = height
         self.width = width
+        self.comment = comment
+        self.comment_options = comment_options or {}
 
 
 class Image(PrimitiveBox):

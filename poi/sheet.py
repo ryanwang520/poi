@@ -20,7 +20,7 @@ class Sheet:
         start_col: int = 0,
         global_format: dict[str, Any] | None = None,
         fast: bool = False,
-    ):
+    ) -> None:
         if isinstance(root, list):
             root = Col(children=root)
         BoxInstance(root, start_row, start_col, None)

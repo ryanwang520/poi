@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections import abc
+from datetime import date, datetime, time
 from typing import (
     Any,
     Callable,
@@ -9,19 +10,144 @@ from typing import (
     Generic,
     Iterable,
     NamedTuple,
+    Protocol,
     TypedDict,
     TypeVar,
+    Union,
 )
 
-try:
-    from typing_extensions import Literal
-except ImportError:
-    from typing import Literal  # type: ignore
+from typing_extensions import Literal, NotRequired
 
 logger = logging.getLogger("poi")
 logger.addHandler(logging.NullHandler())
 
+# =================== TYPE DEFINITIONS ===================
+
+# Basic type aliases
+CellValue = Union[str, int, float, bool, datetime, date, time, None]
 Direction = Literal["HORIZONTAL", "VERTICAL"]
+
+# Style and formatting types
+Alignment = Literal["left", "center", "right", "justify"]
+VerticalAlignment = Literal["top", "vcenter", "bottom", "vjustify"]
+BorderStyle = Literal[0, 1, 2, 3, 4, 5, 6]  # xlsxwriter border styles
+
+
+class CommentOptions(TypedDict):
+    """Options for Excel cell comments."""
+
+    author: NotRequired[str]
+    visible: NotRequired[bool]
+    x_scale: NotRequired[float]
+    y_scale: NotRequired[float]
+    color: NotRequired[str]
+
+
+class CellStyle(TypedDict):
+    """Comprehensive cell style options."""
+
+    # Font styling
+    font_name: NotRequired[str]
+    font_size: NotRequired[int]
+    bold: NotRequired[bool]
+    italic: NotRequired[bool]
+    underline: NotRequired[bool]
+    font_color: NotRequired[str]
+
+    # Cell styling
+    bg_color: NotRequired[str]
+    pattern: NotRequired[int]
+    align: NotRequired[Alignment]
+    valign: NotRequired[VerticalAlignment]
+    text_wrap: NotRequired[bool]
+    shrink_to_fit: NotRequired[bool]
+    indent: NotRequired[int]
+    rotation: NotRequired[int]
+
+    # Border styling
+    border: NotRequired[BorderStyle]
+    border_color: NotRequired[str]
+    top: NotRequired[BorderStyle]
+    bottom: NotRequired[BorderStyle]
+    left: NotRequired[BorderStyle]
+    right: NotRequired[BorderStyle]
+    top_color: NotRequired[str]
+    bottom_color: NotRequired[str]
+    left_color: NotRequired[str]
+    right_color: NotRequired[str]
+
+    # Number formatting
+    num_format: NotRequired[str]
+
+
+class ImageOptions(TypedDict):
+    """Options for image insertion."""
+
+    x_scale: NotRequired[float]
+    y_scale: NotRequired[float]
+    x_offset: NotRequired[int]
+    y_offset: NotRequired[int]
+    object_position: NotRequired[int]
+    url: NotRequired[str]
+    tip: NotRequired[str]
+    description: NotRequired[str]
+
+
+class TableStyle(TypedDict):
+    """Style options specific to tables."""
+
+    border: NotRequired[BorderStyle]
+    align: NotRequired[Alignment]
+    valign: NotRequired[VerticalAlignment]
+    bg_color: NotRequired[str]
+    font_size: NotRequired[int]
+    bold: NotRequired[bool]
+    text_wrap: NotRequired[bool]
+
+
+# Protocol definitions for callbacks
+T_contra = TypeVar("T_contra", contravariant=True)
+
+
+class RenderFunction(Protocol[T_contra]):
+    """Protocol for column render functions."""
+
+    def __call__(self, record: T_contra, column: Column, *args: Any) -> CellValue: ...
+
+
+class StyleCondition(Protocol[T_contra]):
+    """Protocol for conditional style functions."""
+
+    def __call__(self, record: T_contra, column: Column) -> bool: ...
+
+
+class RowHeightCallback(Protocol[T_contra]):
+    """Protocol for dynamic row height functions."""
+
+    def __call__(self, record: T_contra, index: int, *args: Any) -> int: ...
+
+
+# Column configuration types
+class ColumnDict(TypedDict):
+    """Dictionary format for column configuration."""
+
+    title: str
+    attr: NotRequired[str]
+    render: NotRequired[RenderFunction[Any]]
+    width: NotRequired[int]
+    type: NotRequired[Literal["image", "text"]]
+    options: NotRequired[ImageOptions]
+    format: NotRequired[CellStyle]
+    title_comment: NotRequired[str]
+    title_comment_options: NotRequired[CommentOptions]
+
+
+ColumnTuple = tuple[str, str]  # (attr, title)
+ColumnConfig = Union[ColumnDict, ColumnTuple]
+
+# Generic type variable with constraint
+T = TypeVar("T")
+TableRow = TypeVar("TableRow", bound=Any)
 
 
 class BoxInstance:
@@ -349,7 +475,7 @@ class PrimitiveBox(Box):
 class Cell(PrimitiveBox):
     def __init__(
         self,
-        value: str | int | float,
+        value: CellValue,
         *args: Any,
         width: int | None = None,
         height: int | None = None,
@@ -366,56 +492,57 @@ class Cell(PrimitiveBox):
 
 
 class Image(PrimitiveBox):
-    def __init__(self, filename: str, *args: Any, **kwargs: Any) -> None:
-        options = kwargs.pop("options", None)
+    def __init__(
+        self,
+        filename: str,
+        *args: Any,
+        options: ImageOptions | None = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.filename = filename
         self.options = options
 
 
-class CommentOptions(TypedDict, total=False):
-    author: str
-    visible: bool
-    x_scale: float
-    y_scale: float
-    color: str
-
-
 class Column(NamedTuple):
+    """Configuration for table columns."""
+
     title: str
     attr: str | None = None
-    render: Callable[..., Any] | None = None
+    render: RenderFunction[Any] | None = None
     width: int | None = None
     type: Literal["image", "text"] = "text"
-    options: dict[str, Any] | None = None
-    format: dict[str, Any] | None = None
+    options: ImageOptions | None = None
+    format: CellStyle | None = None
     title_comment: str | None = None
     title_comment_options: CommentOptions | None = None
 
 
-T = TypeVar("T")
-
-
 class Table(Box, Generic[T]):
+    """High-level component for tabular data with headers and formatting."""
+
     columns: list[Column]
 
     def __init__(
         self,
         data: Collection[T],
-        columns: Collection[dict[str, Any] | tuple[str, str]],
+        columns: Collection[ColumnConfig],
         col_width: int | None = None,
-        row_height: Callable[..., Any] | int | None = None,
-        border: int | None = None,
-        cell_style: (
-            dict[str, Callable[[T, Column], bool] | Callable[[T], bool]] | str | None
-        ) = None,
+        row_height: RowHeightCallback[T] | int | None = None,
+        border: BorderStyle | None = None,
+        cell_style: dict[str, StyleCondition[T]] | str | None = None,
         datetime_format: str | None = None,
         date_format: str | None = None,
         time_format: str | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        super().__init__(*args, border=border or 1, **kwargs)
+        # Set default border if not provided
+        if border is not None:
+            kwargs["border"] = border
+        else:
+            kwargs.setdefault("border", 1)
+        super().__init__(*args, **kwargs)
         self.data = data
         self.col_width = col_width or 15
         self.row_height = row_height

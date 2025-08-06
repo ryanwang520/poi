@@ -110,9 +110,15 @@ T_contra = TypeVar("T_contra", contravariant=True)
 
 
 class RenderFunction(Protocol[T_contra]):
-    """Protocol for column render functions."""
+    """Protocol for column render functions.
 
-    def __call__(self, record: T_contra, column: Column, *args: Any) -> CellValue: ...
+    Supports the common lambda pattern:
+    - lambda record: record.field
+    - lambda record: str(record.field)
+    - lambda record, column: f"{record.field} ({column.title})"
+    """
+
+    def __call__(self, record: T_contra, /, *args: Any) -> CellValue: ...
 
 
 class StyleCondition(Protocol[T_contra]):

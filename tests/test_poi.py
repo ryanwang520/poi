@@ -305,8 +305,6 @@ def test_image(pytestconfig):
                             colspan=4,
                             offset=2,
                             grow=True,
-                            align="center",
-                            border=1,
                             options={"x_scale": 0.2, "y_scale": 0.2},
                         ),
                         Cell("cell 2", bg_color="red", align="center"),

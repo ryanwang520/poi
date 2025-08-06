@@ -196,6 +196,7 @@ Visitor = Callable[["Box"], None]
 class Box:
     instance: BoxInstance
     parent: Box | None
+    styles: CellStyle
 
     def accept(self, visitor: Visitor) -> None:
         visitor(self)
@@ -237,7 +238,7 @@ class Box:
         colspan: int | None = None,
         offset: int = 0,
         grow: bool = False,
-        **kwargs: Any,
+        **kwargs: Unpack[CellStyle],
     ) -> None:
         self.parent = None
         self.rowspan = rowspan
@@ -267,7 +268,7 @@ class Box:
         pass
 
     @property
-    def cell_format(self) -> dict[str, Any]:
+    def cell_format(self) -> CellStyle:
         return self.styles or {}
 
     def layout_child_element(
@@ -512,11 +513,22 @@ class Image(PrimitiveBox):
     def __init__(
         self,
         filename: str,
-        *args: Any,
+        *,  # Force keyword-only arguments
+        # Box layout parameters
+        rowspan: int | None = None,
+        colspan: int | None = None,
+        offset: int = 0,
+        grow: bool = False,
+        # Image-specific parameters
         options: ImageOptions | None = None,
-        **kwargs: Any,
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            children=None,  # Image is primitive, no children
+            rowspan=rowspan,
+            colspan=colspan,
+            offset=offset,
+            grow=grow,
+        )
         self.filename = filename
         self.options = options
 
@@ -546,20 +558,19 @@ class Table(Box, Generic[T]):
         columns: Collection[ColumnConfig],
         col_width: int | None = None,
         row_height: RowHeightCallback[T] | int | None = None,
-        border: BorderStyle | None = None,
         cell_style: dict[str, StyleCondition[T]] | str | None = None,
         datetime_format: str | None = None,
         date_format: str | None = None,
         time_format: str | None = None,
-        *args: Any,
-        **kwargs: Any,
+        # Table-wide style parameters (includes border)
+        **kwargs: Unpack[CellStyle],
     ) -> None:
         # Set default border if not provided
-        if border is not None:
-            kwargs["border"] = border
-        else:
-            kwargs.setdefault("border", 1)
-        super().__init__(*args, **kwargs)
+        kwargs.setdefault("border", 1)
+        super().__init__(
+            children=None,  # Table manages its own children
+            **kwargs,
+        )
         self.data = data
         self.col_width = col_width or 15
         self.row_height = row_height

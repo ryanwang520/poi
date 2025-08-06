@@ -134,6 +134,62 @@ def test_cell_comment(pytestconfig):
         assert_match_snapshot(sheet, "comment.xlsx")
 
 
+def test_table_header_comments(pytestconfig):
+    class Product(NamedTuple):
+        id: int
+        name: str
+        price: float
+        category: str
+
+    data = [
+        Product(id=1, name="Laptop", price=999.99, category="Electronics"),
+        Product(id=2, name="Book", price=19.99, category="Education"),
+        Product(id=3, name="Coffee", price=4.99, category="Food"),
+    ]
+
+    # Test different comment formats
+    columns = [
+        # Regular tuple format: (attr, title) - no comments
+        ("id", "Product ID"),
+        # Dictionary format with title comment and options
+        {
+            "attr": "name",
+            "title": "Product Name",
+            "title_comment": "The display name of the product",
+            "title_comment_options": {"author": "Product Team", "visible": True},
+        },
+        # Dictionary format with styled title comment
+        {
+            "attr": "price",
+            "title": "Price ($)",
+            "title_comment": "Price in USD\nSubject to change",
+            "title_comment_options": {
+                "author": "Finance Team",
+                "x_scale": 1.5,
+                "y_scale": 1.3,
+                "color": "#FFE4B5",
+            },
+        },
+        # Regular column without comment
+        ("category", "Category"),
+    ]
+
+    sheet = Sheet(
+        root=Table(
+            data=data,
+            columns=columns,
+            border=1,
+            align="center",
+            bg_color="#D3D3D3",  # Use hex color instead of "lightgray"
+        )
+    )
+
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.write("tests/__snapshots__/table_header_comments.xlsx")
+    else:
+        assert_match_snapshot(sheet, "table_header_comments.xlsx")
+
+
 def test_complex_row(pytestconfig):
     sheet = Sheet(
         root=Col(

@@ -380,6 +380,8 @@ class Column(NamedTuple):
     type: Literal["image", "text"] = "text"
     options: dict[str, Any] | None = None
     format: dict[str, Any] | None = None
+    title_comment: str | None = None
+    title_comment_options: dict[str, Any] | None = None
 
 
 T = TypeVar("T")
@@ -417,6 +419,12 @@ class Table(Box, Generic[T]):
         for col in columns:
             assert isinstance(col, (tuple, dict))
             if isinstance(col, tuple):
+                # Only support 2-tuple: (attr, title)
+                if len(col) != 2:
+                    raise ValueError(
+                        f"Tuple must have exactly 2 elements (attr, title), "
+                        f"got {len(col)}"
+                    )
                 item = Column(attr=col[0], title=col[1])
             else:
                 item = Column(
@@ -427,6 +435,8 @@ class Table(Box, Generic[T]):
                     render=col.get("render"),
                     width=col.get("width"),
                     format=col.get("format"),
+                    title_comment=col.get("title_comment"),
+                    title_comment_options=col.get("title_comment_options"),
                 )
             self.columns.append(item)
 

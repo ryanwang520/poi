@@ -9,6 +9,7 @@ from typing import (
     Generic,
     Iterable,
     NamedTuple,
+    TypedDict,
     TypeVar,
 )
 
@@ -353,7 +354,7 @@ class Cell(PrimitiveBox):
         width: int | None = None,
         height: int | None = None,
         comment: str | None = None,
-        comment_options: dict[str, Any] | None = None,
+        comment_options: CommentOptions | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
@@ -372,6 +373,14 @@ class Image(PrimitiveBox):
         self.options = options
 
 
+class CommentOptions(TypedDict, total=False):
+    author: str
+    visible: bool
+    x_scale: float
+    y_scale: float
+    color: str
+
+
 class Column(NamedTuple):
     title: str
     attr: str | None = None
@@ -381,7 +390,7 @@ class Column(NamedTuple):
     options: dict[str, Any] | None = None
     format: dict[str, Any] | None = None
     title_comment: str | None = None
-    title_comment_options: dict[str, Any] | None = None
+    title_comment_options: CommentOptions | None = None
 
 
 T = TypeVar("T")

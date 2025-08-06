@@ -8,11 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `uv run pytest` - Run all tests
 - `uv run pytest --update-snapshot` - Run tests and update snapshot files (for Excel file comparisons)
 - `uv run pytest tests/test_specific.py` - Run specific test file
+- `uv run pytest tests/test_poi.py::test_function_name` - Run specific test function
 
 ### Code Quality
 - `uv run ruff check` - Run linting (configured in pyproject.toml)
 - `uv run ruff format` - Format code
-- `uv run mypy poi` - Run type checking (configured in mypy.ini, excludes tests)
+- `uv run mypy poi` - Run type checking (configured in pyproject.toml, excludes tests)
 
 ### Documentation
 - `uv run mkdocs serve` - Serve documentation locally for development
@@ -33,9 +34,10 @@ Poi is a declarative Excel generation library built around a layout engine with 
 - `Box` - Base class for all layout elements with positioning, spanning, and styling
 - `Row` - Horizontal container that layouts children left-to-right 
 - `Col` - Vertical container that layouts children top-to-bottom
-- `Cell` - Primitive element containing a single value
-- `Table` - High-level component for tabular data with headers, formatting, and conditional styling
+- `Cell` - Primitive element containing a single value with support for comments
+- `Table` - High-level component for tabular data with headers, formatting, conditional styling, and header comments
 - `Image` - Primitive for embedding images in Excel files
+- `Column` - NamedTuple defining table column configuration including title comments
 
 **Sheet Management (`poi/sheet.py`, `poi/book.py`)**
 - `Sheet` - Main interface for creating single worksheet Excel files from a root Box
@@ -44,7 +46,7 @@ Poi is a declarative Excel generation library built around a layout engine with 
 **Visitor Pattern (`poi/visitors/`)**
 - `writer_visitor` - Traverses the Box tree and writes to Excel using xlsxwriter
 - `print_visitor` - Debug visitor for printing the layout structure
-- Writers handle Excel-specific formatting, merging, images, and conditional styling
+- Writers handle Excel-specific formatting, merging, images, conditional styling, and comments
 
 ### Key Design Patterns
 
@@ -58,8 +60,27 @@ Poi is a declarative Excel generation library built around a layout engine with 
 
 Tests use snapshot testing comparing generated Excel file sizes (within tolerance) against reference files in `tests/__snapshots__/`. The test framework supports updating snapshots when Excel structure changes.
 
+### Comment System
+
+**Cell Comments** - Individual cells support comments via `comment` and `comment_options` parameters:
+```python
+Cell("Hello", comment="This is a comment", comment_options={"author": "User", "visible": True})
+```
+
+**Table Header Comments** - Table columns support header comments via dictionary format:
+```python
+{
+    "attr": "name", 
+    "title": "Product Name",
+    "title_comment": "Product display name",
+    "title_comment_options": {"author": "Team", "x_scale": 1.5}
+}
+```
+Tuple format `("attr", "title")` remains simple without comment support.
+
 ### Dependencies
 
 - `xlsxwriter` - Core Excel file generation
 - Development: `pytest`, `ruff`, `mypy`, `mkdocs` with Material theme
-- Build system uses `uv_build` backend with Python 3.8+ support
+- Build system uses `uv_build` backend with Python 3.9+ support
+- All tool configurations centralized in `pyproject.toml`

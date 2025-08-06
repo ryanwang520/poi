@@ -1,6 +1,6 @@
 [project]
 name = "poi"
-version = "1.2.1"
+version = "1.2.3"
 description = "Write Excel XLSX declaratively."
 authors = [
 { name = "Ryan Wang", email = " hwwangwang@gmail.com" },

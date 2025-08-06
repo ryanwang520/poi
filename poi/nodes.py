@@ -109,16 +109,13 @@ class TableStyle(TypedDict):
 T_contra = TypeVar("T_contra", contravariant=True)
 
 
-class RenderFunction(Protocol[T_contra]):
-    """Protocol for column render functions.
-
-    Supports the common lambda pattern:
-    - lambda record: record.field
-    - lambda record: str(record.field)
-    - lambda record, column: f"{record.field} ({column.title})"
-    """
-
-    def __call__(self, record: T_contra, /, *args: Any) -> CellValue: ...
+# Render function types for column configuration
+RenderFunction = Union[
+    Callable[[T_contra], CellValue],  # Simple: lambda record: record.field
+    Callable[
+        [T_contra, "Column"], CellValue
+    ],  # Advanced: lambda record, column: f"{record.field} ({column.title})"
+]
 
 
 class StyleCondition(Protocol[T_contra]):

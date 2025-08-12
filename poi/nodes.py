@@ -41,6 +41,8 @@ class CommentOptions(TypedDict):
     x_scale: NotRequired[float]
     y_scale: NotRequired[float]
     color: NotRequired[str]
+    width: NotRequired[int]
+    height: NotRequired[int]
 
 
 class CellStyle(TypedDict):

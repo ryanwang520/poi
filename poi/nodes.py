@@ -113,6 +113,7 @@ T_contra = TypeVar("T_contra", contravariant=True)
 
 # Render function types for column configuration
 RenderFunction = Union[
+    Callable[[], CellValue],
     Callable[[T_contra], CellValue],  # Simple: lambda record: record.field
     Callable[
         [T_contra, "Column"], CellValue
@@ -560,7 +561,7 @@ class Table(Box, Generic[T]):
         columns: Collection[ColumnConfig],
         col_width: int | None = None,
         row_height: RowHeightCallback[T] | int | None = None,
-        cell_style: dict[str, StyleCondition[T]] | str | None = None,
+        cell_style: dict[str, RenderFunction[T]] | str | None = None,
         datetime_format: str | None = None,
         date_format: str | None = None,
         time_format: str | None = None,

@@ -2,7 +2,7 @@ import datetime
 import re
 from functools import singledispatch
 from inspect import signature
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from ..nodes import Cell, Col, Image, Row, Table
 from ..utils import get_obj_attr
@@ -15,16 +15,197 @@ def call_by_sig(fn: Callable[..., Any], *args: Any) -> Any:
     return fn(*args[:arg_length])
 
 
-def get_string_width(val: Any) -> int:
+def excel_to_strftime(excel_fmt: str) -> str:
+    # Find all format tokens
+    tokens_rx = re.compile(
+        r"(yyyy|yy|dddd|ddd|dd|d|mmmm|mmm|mm|m|hh|h|ss|s|[aA]/[pP]|[aA][mM]/[pP][mM])",
+        re.IGNORECASE,
+    )
+    matches = list(tokens_rx.finditer(excel_fmt))
+
+    translations = []
+    has_am_pm = any(m.group(0).lower() in ("am/pm", "a/p") for m in matches)
+
+    unambiguous = (
+        "yyyy",
+        "yy",
+        "dddd",
+        "ddd",
+        "dd",
+        "d",
+        "mmmm",
+        "mmm",
+        "hh",
+        "h",
+        "ss",
+        "s",
+        "am/pm",
+        "a/p",
+    )
+    date_tokens = ("yyyy", "yy", "dddd", "ddd", "dd", "d", "mmmm", "mmm")
+    for idx, match in enumerate(matches):
+        token = match.group(0).lower()
+
+        if token in unambiguous:
+            if token == "yyyy":
+                translations.append("%Y")
+            elif token == "yy":
+                translations.append("%y")
+            elif token == "dddd":
+                translations.append("%A")
+            elif token == "ddd":
+                translations.append("%a")
+            elif token == "dd":
+                translations.append("%d")
+            elif token == "d":
+                translations.append("%d")
+            elif token == "mmmm":
+                translations.append("%B")
+            elif token == "mmm":
+                translations.append("%b")
+            elif token in ("hh", "h"):
+                translations.append("%I" if has_am_pm else "%H")
+            elif token in ("ss", "s"):
+                translations.append("%S")
+            elif token in ("am/pm", "a/p"):
+                translations.append("%p")
+        elif token in ("mm", "m"):
+            is_minute = False
+            for p_idx in range(idx - 1, -1, -1):
+                p_token = matches[p_idx].group(0).lower()
+                if p_token in ("hh", "h"):
+                    is_minute = True
+                    break
+                elif p_token in date_tokens:
+                    break
+
+            if not is_minute:
+                for s_idx in range(idx + 1, len(matches)):
+                    s_token = matches[s_idx].group(0).lower()
+                    if s_token in ("ss", "s"):
+                        is_minute = True
+                        break
+                    elif s_token in date_tokens:
+                        break
+
+            if is_minute:
+                translations.append("%M")
+            else:
+                translations.append("%m")
+        else:
+            translations.append(match.group(0))
+
+    parts = []
+    last_idx = 0
+    for match, trans in zip(matches, translations):
+        parts.append(excel_fmt[last_idx : match.start()])
+        parts.append(trans)
+        last_idx = match.end()
+    parts.append(excel_fmt[last_idx:])
+
+    return "".join(parts)
+
+
+def format_excel_number(val: Union[float, int], num_format: str) -> str:
+    if not isinstance(val, (int, float)):
+        return str(val)
+
+    orig_val = val
+    sections = num_format.split(";")
+
+    if orig_val > 0:
+        fmt_sec = sections[0]
+    elif orig_val < 0:
+        if len(sections) > 1:
+            fmt_sec = sections[1]
+            val = abs(orig_val)
+        else:
+            fmt_sec = sections[0]
+            val = orig_val
+    else:  # val == 0
+        if len(sections) > 2:
+            fmt_sec = sections[2]
+        elif len(sections) > 1:
+            fmt_sec = sections[0]
+        else:
+            fmt_sec = sections[0]
+
+    fmt_clean = re.sub(r"\[[a-zA-Z0-9]+\]", "", fmt_sec)
+    fmt_clean = re.sub(r"_[a-zA-Z0-9_()]", " ", fmt_clean)
+    fmt_clean = re.sub(r"\*[a-zA-Z0-9_ -]", "", fmt_clean)
+    fmt_clean = fmt_clean.replace('"', "")
+
+    is_percent = "%" in fmt_clean
+    if is_percent:
+        val = val * 100
+
+    decimal_match = re.search(r"\.([0#?]+)", fmt_clean)
+    decimal_places = len(decimal_match.group(1)) if decimal_match else 0
+
+    has_thousands = "," in re.split(r"\.", fmt_clean)[0]
+
+    spec = ""
+    if has_thousands:
+        spec += ","
+    spec += f".{decimal_places}f"
+
+    formatted_num = f"{val:{spec}}"
+
+    num_pattern = re.search(r"([#0?,.\s]+)", fmt_clean)
+    if num_pattern:
+        prefix = fmt_clean[: num_pattern.start()]
+        suffix = fmt_clean[num_pattern.end() :]
+    else:
+        prefix = ""
+        suffix = ""
+
+    res = f"{prefix}{formatted_num}{suffix}"
+
+    if orig_val < 0 and len(sections) == 1 and "-" not in res and "(" not in res:
+        res = "-" + res
+
+    return res
+
+
+def get_string_width(val: Any, num_format: Optional[str] = None) -> int:
     if val is None:
         return 0
-    if isinstance(val, datetime.datetime):
-        return 19
-    if isinstance(val, datetime.date):
-        return 10
-    if isinstance(val, datetime.time):
-        return 8
-    s = str(val)
+    if isinstance(val, (datetime.datetime, datetime.date, datetime.time)):
+        if not num_format:
+            if isinstance(val, datetime.datetime):
+                return 19
+            if isinstance(val, datetime.date):
+                return 10
+            if isinstance(val, datetime.time):
+                return 8
+            s = str(val)
+        else:
+            try:
+                if isinstance(val, datetime.datetime):
+                    dt = val
+                elif isinstance(val, datetime.date):
+                    dt = datetime.datetime.combine(val, datetime.time.min)
+                elif isinstance(val, datetime.time):
+                    dt = datetime.datetime.combine(datetime.date(2026, 1, 1), val)
+                else:
+                    dt = val
+                py_fmt = excel_to_strftime(num_format)
+                s = dt.strftime(py_fmt)
+            except Exception:
+                if isinstance(val, datetime.datetime):
+                    return 19
+                if isinstance(val, datetime.date):
+                    return 10
+                if isinstance(val, datetime.time):
+                    return 8
+                s = str(val)
+    elif isinstance(val, (int, float)) and num_format:
+        try:
+            s = format_excel_number(val, num_format)
+        except Exception:
+            s = str(val)
+    else:
+        s = str(val)
     # Count characters with ord > 127 (e.g. CJK/Chinese characters) as 2, others as 1
     return sum(2 if ord(c) > 127 else 1 for c in s)
 
@@ -107,12 +288,6 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                     writer.insert_image(row + i + 1, col + j, val, column.options)
                 else:
                     if should_write(val):
-                        current_width = column_widths[j]
-                        if current_width is not None:
-                            val_width = get_string_width(val)
-                            if val_width > current_width:
-                                column_widths[j] = val_width
-
                         fmt = {}
                         if isinstance(self.cell_style, str):
                             fmt.update(format_from_style(self.cell_style))
@@ -132,6 +307,13 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
 
                         if column.format:
                             fmt.update(column.format)
+
+                        current_width = column_widths[j]
+                        if current_width is not None:
+                            val_width = get_string_width(val, fmt.get("num_format"))
+                            if val_width > current_width:
+                                column_widths[j] = val_width
+
                         writer.write(
                             row + i + 1, col + j, val, {**self.cell_format, **fmt}
                         )

@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  # Job 1: Run full test suite across all Python versions before releasing
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv and set the Python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run tests
+        run: uv run pytest tests
+
+  # Job 2: Build, create GitHub Release with auto-changelog, and publish to PyPI
+  release:
+    needs: tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # Required to create/update GitHub Release and upload assets
+      id-token: write   # Required for PyPI Trusted Publishers OIDC authentication
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for precise changelog generation
+
+      - name: Install uv and set Python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.9' # Use baseline Python version for building
+
+      - name: Build the package
+        run: uv build
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # Optional: You can configure standard PyPI Trusted Publishers.
+        # This action automatically authenticates via OIDC when id-token: write is set
+        # and you have registered GitHub as a Trusted Publisher on pypi.org for this project.
+        # To skip publishing if Trusted Publishers is not set up yet, you can set `skip-existing: true`
+        # or comment this step out until PyPI is configured.
+        with:
+          skip-existing: true

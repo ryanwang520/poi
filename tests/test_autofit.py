@@ -1,7 +1,7 @@
 import datetime
 import os
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 from poi import Sheet, Table
 from poi.visitors.writer import get_string_width
@@ -143,3 +143,214 @@ def test_autofit_table(pytestconfig):
         sheet.write("tests/__snapshots__/autofit_table.xlsx")
     else:
         assert_match_snapshot(sheet, "autofit_table.xlsx")
+
+
+def test_autofit_mixed_widths(pytestconfig):
+    class Product(NamedTuple):
+        id: int
+        name: str
+        category: str
+        description: str
+
+    data = [
+        Product(1, "Phone", "Electronics", "A smartphone with great camera"),
+        Product(2, "Book", "Office", "An interesting paperback novel"),
+    ]
+
+    columns = [
+        # Explicit static width
+        {"attr": "id", "title": "ID", "width": 8},
+        # Explicit auto width
+        {"attr": "name", "title": "Product Name", "width": "auto"},
+        # No width, using Table default which we'll set to 25
+        {"attr": "category", "title": "Category Name"},
+        # No width, using Table default which is "auto" (will be overridden)
+        {"attr": "description", "title": "Long Description", "width": "auto"},
+    ]
+
+    sheet = Sheet(
+        root=Table(
+            data=data,
+            columns=columns,
+            col_width=25,  # Table level default is static 25
+            border=1,
+        )
+    )
+
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.write("tests/__snapshots__/autofit_mixed_widths.xlsx")
+    else:
+        assert_match_snapshot(sheet, "autofit_mixed_widths.xlsx")
+
+
+def test_autofit_empty_and_nulls(pytestconfig):
+    class EmptyItem(NamedTuple):
+        name: str
+        value: Optional[float]
+        notes: Optional[str]
+
+    # Test with actual null/None/empty values
+    data = [
+        EmptyItem(name="", value=None, notes=None),
+        EmptyItem(name="Item A", value=12.34, notes="Some notes here"),
+        EmptyItem(name="电脑", value=None, notes=""),
+    ]
+
+    columns = [
+        {"attr": "name", "title": "Name Column", "width": "auto"},
+        {"attr": "value", "title": "Value Column", "width": "auto"},
+        {"attr": "notes", "title": "Notes Column", "width": "auto"},
+    ]
+
+    sheet = Sheet(
+        root=Table(
+            data=data,
+            columns=columns,
+            col_width="auto",
+            border=1,
+        )
+    )
+
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.write("tests/__snapshots__/autofit_empty_and_nulls.xlsx")
+    else:
+        assert_match_snapshot(sheet, "autofit_empty_and_nulls.xlsx")
+
+
+def test_autofit_empty_data(pytestconfig):
+    class Item(NamedTuple):
+        name: str
+        age: int
+
+    # No rows at all
+    data = []
+
+    columns = [
+        {"attr": "name", "title": "User Name Header", "width": "auto"},
+        {"attr": "age", "title": "Age", "width": "auto"},
+    ]
+
+    sheet = Sheet(
+        root=Table(
+            data=data,
+            columns=columns,
+            col_width="auto",
+            border=1,
+        )
+    )
+
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.write("tests/__snapshots__/autofit_empty_data.xlsx")
+    else:
+        assert_match_snapshot(sheet, "autofit_empty_data.xlsx")
+
+
+def test_autofit_various_types(pytestconfig):
+    class Various(NamedTuple):
+        s_eng: str
+        s_cjk: str
+        val_int: int
+        val_float: float
+        val_bool: bool
+        dt: datetime.datetime
+        d: datetime.date
+        t: datetime.time
+
+    data = [
+        Various(
+            s_eng="Short",
+            s_cjk="短",
+            val_int=1,
+            val_float=1.1,
+            val_bool=True,
+            dt=datetime.datetime(2026, 5, 24, 8, 30, 0),
+            d=datetime.date(2026, 5, 24),
+            t=datetime.time(8, 30, 0),
+        ),
+        Various(
+            s_eng="This is a very long english string",
+            s_cjk="这是一段非常长的中文测试文本，用于测试自适应宽度",
+            val_int=9999999,
+            val_float=1234567.89,
+            val_bool=False,
+            dt=datetime.datetime(2026, 12, 31, 23, 59, 59),
+            d=datetime.date(2026, 12, 31),
+            t=datetime.time(23, 59, 59),
+        ),
+    ]
+
+    columns = [
+        {"attr": "s_eng", "title": "English", "width": "auto"},
+        {"attr": "s_cjk", "title": "Chinese", "width": "auto"},
+        {"attr": "val_int", "title": "Integer", "width": "auto"},
+        {
+            "attr": "val_float",
+            "title": "Float",
+            "width": "auto",
+            "format": {"num_format": "$#,##0.00"},
+        },
+        {"attr": "val_bool", "title": "Boolean", "width": "auto"},
+        {"attr": "dt", "title": "Datetime", "width": "auto"},
+        {
+            "attr": "d",
+            "title": "Date",
+            "width": "auto",
+            "format": {"num_format": "yyyy/m/d"},
+        },
+        {"attr": "t", "title": "Time", "width": "auto"},
+    ]
+
+    sheet = Sheet(
+        root=Table(
+            data=data,
+            columns=columns,
+            col_width="auto",
+            border=1,
+        )
+    )
+
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.write("tests/__snapshots__/autofit_various_types.xlsx")
+    else:
+        assert_match_snapshot(sheet, "autofit_various_types.xlsx")
+
+
+def test_autofit_header_comments(pytestconfig):
+    class CommentItem(NamedTuple):
+        name: str
+        value: int
+
+    data = [
+        CommentItem(name="A", value=100),
+        CommentItem(name="B", value=200000),
+    ]
+
+    columns = [
+        {
+            "attr": "name",
+            "title": "Name",
+            "width": "auto",
+            "title_comment": "This is a comment for name column",
+            "title_comment_options": {"author": "Test Author", "visible": True},
+        },
+        {
+            "attr": "value",
+            "title": "Value",
+            "width": "auto",
+            "title_comment": "Value comment",
+        },
+    ]
+
+    sheet = Sheet(
+        root=Table(
+            data=data,
+            columns=columns,
+            col_width="auto",
+            border=1,
+        )
+    )
+
+    if pytestconfig.getoption("update_snapshot"):
+        sheet.write("tests/__snapshots__/autofit_header_comments.xlsx")
+    else:
+        assert_match_snapshot(sheet, "autofit_header_comments.xlsx")

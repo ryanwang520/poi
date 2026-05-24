@@ -1,3 +1,5 @@
+# Basic Usage
+
 ## A Basic Example
 
 Write *title*, a *paragraph* and a *signature row*.

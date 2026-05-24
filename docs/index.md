@@ -48,7 +48,7 @@ I think its too low level for application developers who just want to export som
 A *Hello World* example.
 
 
-What wee need is just a `Sheet` object.
+What we need is just a `Sheet` object.
 
 
 ```python
@@ -67,6 +67,12 @@ Then an *xlsx* file has been created.
 
 What happened? We've created a `Sheet` object with a single `Cell` Node, which just contains the text *hello world*, and then we call `sheet.write` to write the sheet object to the *hello.xlsx* file. 
 
-See, that's pretty simple. Of course Poi's ability is far beyond this, jump to [Basic Usage](basic-usage.md) for more examples.
+See, that's pretty simple. Of course, Poi's capabilities go far beyond this. Check out our comprehensive guides to learn more:
+
+- **[Basic Usage](basic-usage.md)**: Learn basic dynamic layouts and how to export simple data tables.
+- **[Components Reference](components.md)**: Learn the layout model (`Row`, `Col` containers) and explore all standard components including the automatic column width auto-fit.
+- **[Styling & Comments](styling.md)**: Learn standard Excel styling, borders, conditional formatting, and interactive cell/header annotations.
+- **[Multi-sheet Workbooks](multi-sheet.md)**: Group multiple worksheets together in a single file using the `Book` API.
+- **[Advanced Features](advanced.md)**: Harness optional chaining, dynamic sizing with the `grow` property, and performance optimizations.
 
 

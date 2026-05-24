@@ -140,7 +140,7 @@ class ColumnDict(TypedDict):
     title: str
     attr: NotRequired[str]
     render: NotRequired[RenderFunction[Any]]
-    width: NotRequired[int]
+    width: NotRequired[int | Literal["auto"]]
     type: NotRequired[Literal["image", "text"]]
     options: NotRequired[ImageOptions]
     format: NotRequired[CellStyle]
@@ -542,7 +542,7 @@ class Column(NamedTuple):
     title: str
     attr: str | None = None
     render: RenderFunction[Any] | None = None
-    width: int | None = None
+    width: int | Literal["auto"] | None = None
     type: Literal["image", "text"] = "text"
     options: ImageOptions | None = None
     format: CellStyle | None = None
@@ -559,7 +559,7 @@ class Table(Box, Generic[T]):
         self,
         data: Collection[T],
         columns: Collection[ColumnConfig],
-        col_width: int | None = None,
+        col_width: int | Literal["auto"] | None = None,
         row_height: RowHeightCallback[T] | int | None = None,
         cell_style: dict[str, RenderFunction[T]] | str | None = None,
         datetime_format: str | None = None,

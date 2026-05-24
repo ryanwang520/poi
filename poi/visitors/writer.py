@@ -2,7 +2,7 @@ import datetime
 import re
 from functools import singledispatch
 from inspect import signature
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List, Optional
 
 from ..nodes import Cell, Col, Image, Row, Table
 from ..utils import get_obj_attr
@@ -13,6 +13,20 @@ def call_by_sig(fn: Callable[..., Any], *args: Any) -> Any:
     sig = signature(fn)
     arg_length = len(sig.parameters)
     return fn(*args[:arg_length])
+
+
+def get_string_width(val: Any) -> int:
+    if val is None:
+        return 0
+    if isinstance(val, datetime.datetime):
+        return 19
+    if isinstance(val, datetime.date):
+        return 10
+    if isinstance(val, datetime.time):
+        return 8
+    s = str(val)
+    # Count characters with ord > 127 (e.g. CJK/Chinese characters) as 2, others as 1
+    return sum(2 if ord(c) > 127 else 1 for c in s)
 
 
 def writer_visitor(writer: Writer, fast: bool = False) -> Any:
@@ -49,10 +63,18 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                     height = call_by_sig(self.row_height, self.data[i - 1], i - 1)  # type: ignore
             if height:
                 writer.worksheet.set_row(self.row + i, height)
+
+        column_widths: List[Optional[int]] = []
         for i, column in enumerate(self.columns):
             width = column.width or self.col_width
-            if width:
-                writer.worksheet.set_column(self.col + i, self.col + i, width)
+            if width == "auto":
+                column_widths.append(get_string_width(column.title))
+            else:
+                column_widths.append(None)
+                if width:
+                    writer.worksheet.set_column(self.col + i, self.col + i, width)
+
+        for i, column in enumerate(self.columns):
             if should_write(column.title):
                 writer.write(row, col + i, column.title, self.cell_format)
                 # Write comment for header if present
@@ -85,6 +107,12 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                     writer.insert_image(row + i + 1, col + j, val, column.options)
                 else:
                     if should_write(val):
+                        current_width = column_widths[j]
+                        if current_width is not None:
+                            val_width = get_string_width(val)
+                            if val_width > current_width:
+                                column_widths[j] = val_width
+
                         fmt = {}
                         if isinstance(self.cell_style, str):
                             fmt.update(format_from_style(self.cell_style))
@@ -107,6 +135,11 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                         writer.write(
                             row + i + 1, col + j, val, {**self.cell_format, **fmt}
                         )
+
+        for j, auto_w in enumerate(column_widths):
+            if auto_w is not None:
+                final_width = max(auto_w + 3, 10)
+                writer.worksheet.set_column(col + j, col + j, final_width)
 
     @visitor.register
     def _(self: Image) -> None:

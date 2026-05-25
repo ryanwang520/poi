@@ -1,5 +1,6 @@
 import datetime
 import re
+import unicodedata
 from functools import singledispatch
 from inspect import signature
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -15,91 +16,72 @@ def call_by_sig(fn: Callable[..., Any], *args: Any) -> Any:
     return fn(*args[:arg_length])
 
 
-def excel_to_strftime(excel_fmt: str) -> str:
-    # Find all format tokens
+def format_excel_date(dt: datetime.datetime, excel_fmt: str) -> str:
+    # Render dt through an Excel-style date/time format.  Single-char tokens
+    # (d/m/h/s) render without leading zeros to match Excel; doubled tokens
+    # (dd/mm/hh/ss) zero-pad.
     tokens_rx = re.compile(
         r"(yyyy|yy|dddd|ddd|dd|d|mmmm|mmm|mm|m|hh|h|ss|s|[aA]/[pP]|[aA][mM]/[pP][mM])",
         re.IGNORECASE,
     )
     matches = list(tokens_rx.finditer(excel_fmt))
-
-    translations = []
     has_am_pm = any(m.group(0).lower() in ("am/pm", "a/p") for m in matches)
-
-    unambiguous = (
-        "yyyy",
-        "yy",
-        "dddd",
-        "ddd",
-        "dd",
-        "d",
-        "mmmm",
-        "mmm",
-        "hh",
-        "h",
-        "ss",
-        "s",
-        "am/pm",
-        "a/p",
-    )
+    hour = (dt.hour % 12 or 12) if has_am_pm else dt.hour
     date_tokens = ("yyyy", "yy", "dddd", "ddd", "dd", "d", "mmmm", "mmm")
-    for idx, match in enumerate(matches):
-        token = match.group(0).lower()
 
-        if token in unambiguous:
-            if token == "yyyy":
-                translations.append("%Y")
-            elif token == "yy":
-                translations.append("%y")
-            elif token == "dddd":
-                translations.append("%A")
-            elif token == "ddd":
-                translations.append("%a")
-            elif token == "dd":
-                translations.append("%d")
-            elif token == "d":
-                translations.append("%d")
-            elif token == "mmmm":
-                translations.append("%B")
-            elif token == "mmm":
-                translations.append("%b")
-            elif token in ("hh", "h"):
-                translations.append("%I" if has_am_pm else "%H")
-            elif token in ("ss", "s"):
-                translations.append("%S")
-            elif token in ("am/pm", "a/p"):
-                translations.append("%p")
-        elif token in ("mm", "m"):
-            is_minute = False
-            for p_idx in range(idx - 1, -1, -1):
-                p_token = matches[p_idx].group(0).lower()
-                if p_token in ("hh", "h"):
+    def render(token: str, idx: int) -> str:
+        t = token.lower()
+        if t == "yyyy":
+            return f"{dt.year:04d}"
+        if t == "yy":
+            return f"{dt.year % 100:02d}"
+        if t == "dddd":
+            return dt.strftime("%A")
+        if t == "ddd":
+            return dt.strftime("%a")
+        if t == "dd":
+            return f"{dt.day:02d}"
+        if t == "d":
+            return str(dt.day)
+        if t == "mmmm":
+            return dt.strftime("%B")
+        if t == "mmm":
+            return dt.strftime("%b")
+        if t == "hh":
+            return f"{hour:02d}"
+        if t == "h":
+            return str(hour)
+        if t == "ss":
+            return f"{dt.second:02d}"
+        if t == "s":
+            return str(dt.second)
+        if t in ("am/pm", "a/p"):
+            return dt.strftime("%p")
+        # mm / m — month vs minute disambiguated by neighbours
+        is_minute = False
+        for p_idx in range(idx - 1, -1, -1):
+            p_token = matches[p_idx].group(0).lower()
+            if p_token in ("hh", "h"):
+                is_minute = True
+                break
+            if p_token in date_tokens:
+                break
+        if not is_minute:
+            for s_idx in range(idx + 1, len(matches)):
+                s_token = matches[s_idx].group(0).lower()
+                if s_token in ("ss", "s"):
                     is_minute = True
                     break
-                elif p_token in date_tokens:
+                if s_token in date_tokens:
                     break
-
-            if not is_minute:
-                for s_idx in range(idx + 1, len(matches)):
-                    s_token = matches[s_idx].group(0).lower()
-                    if s_token in ("ss", "s"):
-                        is_minute = True
-                        break
-                    elif s_token in date_tokens:
-                        break
-
-            if is_minute:
-                translations.append("%M")
-            else:
-                translations.append("%m")
-        else:
-            translations.append(match.group(0))
+        value = dt.minute if is_minute else dt.month
+        return f"{value:02d}" if t == "mm" else str(value)
 
     parts = []
     last_idx = 0
-    for match, trans in zip(matches, translations):
+    for idx, match in enumerate(matches):
         parts.append(excel_fmt[last_idx : match.start()])
-        parts.append(trans)
+        parts.append(render(match.group(0), idx))
         last_idx = match.end()
     parts.append(excel_fmt[last_idx:])
 
@@ -185,12 +167,9 @@ def get_string_width(val: Any, num_format: Optional[str] = None) -> int:
                     dt = val
                 elif isinstance(val, datetime.date):
                     dt = datetime.datetime.combine(val, datetime.time.min)
-                elif isinstance(val, datetime.time):
-                    dt = datetime.datetime.combine(datetime.date(2026, 1, 1), val)
                 else:
-                    dt = val
-                py_fmt = excel_to_strftime(num_format)
-                s = dt.strftime(py_fmt)
+                    dt = datetime.datetime.combine(datetime.date(2026, 1, 1), val)
+                s = format_excel_date(dt, num_format)
             except Exception:
                 if isinstance(val, datetime.datetime):
                     return 19
@@ -206,8 +185,8 @@ def get_string_width(val: Any, num_format: Optional[str] = None) -> int:
             s = str(val)
     else:
         s = str(val)
-    # Count characters with ord > 127 (e.g. CJK/Chinese characters) as 2, others as 1
-    return sum(2 if ord(c) > 127 else 1 for c in s)
+    # Count fullwidth / wide (CJK) characters as 2, others as 1.
+    return sum(2 if unicodedata.east_asian_width(c) in ("F", "W") else 1 for c in s)
 
 
 def writer_visitor(writer: Writer, fast: bool = False) -> Any:

@@ -28,10 +28,10 @@ def test_get_string_width():
 def test_get_string_width_custom_formats():
     # Test custom datetime formats
     dt = datetime.datetime(2026, 1, 1, 12, 0, 0)
-    # Renders "Thursday, January 01, 2026"
-    assert get_string_width(dt, "dddd, mmmm d, yyyy") == 26
-    # Renders "2026/01/01"
-    assert get_string_width(dt, "yyyy/m/d") == 10
+    # Renders "Thursday, January 1, 2026"
+    assert get_string_width(dt, "dddd, mmmm d, yyyy") == 25
+    # Renders "2026/1/1"
+    assert get_string_width(dt, "yyyy/m/d") == 8
 
     # Test numeric format `$#,##0.00`
     assert get_string_width(1299.0, "$#,##0.00") == 9  # "$1,299.00"
@@ -83,12 +83,12 @@ def test_autofit_custom_formats():
     # For price: title length is 5 ("Price"), values: "$1,299.00" (9 chars)
     # and "$9.99" (5 chars). Max auto_w is 9. Final width is max(12, 10) = 12.
     # For date: title length is 4 ("Date"), values:
-    # "Thursday, January 01, 2026" (26 chars), and
+    # "Thursday, January 1, 2026" (25 chars), and
     # "Sunday, February 15, 2026" (25 chars).
-    # Max auto_w is 26. Final width is max(29, 10) = 29.
+    # Max auto_w is 25. Final width is max(28, 10) = 28.
 
     assert worksheet.col_info[0][0] == 12
-    assert worksheet.col_info[1][0] == 29
+    assert worksheet.col_info[1][0] == 28
 
 
 def test_autofit_table(pytestconfig):

@@ -98,7 +98,7 @@ See how simple it is to create complex tables? You just wrote a dynamically size
 ### Features
 
 - 🎨 **Declarative DSL**: Define spreadsheets with a simple, intuitive, nesting-friendly node tree.
-- 🚀 **Automatic Layout**: Standard `Row` and `Col` layout primitives automatically compute rowspans, colspans, offsets, and row/column indexes for you.
+- 🚀 **Automatic Layout**: Standard layout primitives (`Row`, `Col`, `Cell`, `Image`) automatically compute rowspans, colspans, offsets, and row/column indexes for you.
 - 📏 **Smart Column Auto-fit**: Use `col_width="auto"` to automatically size columns based on the longest value, with native support for Chinese/CJK double-width characters and date patterns.
 - 💬 **Interactive Comments**: Attach rich pop-up tooltips to specific cells and table headers.
 - 📚 **Multi-sheet Workbooks**: Organize multiple sheets together dynamically using the `Book` API.

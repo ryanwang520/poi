@@ -1,0 +1,931 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../basic-usage/">
+      
+      
+        <link rel="next" href="../styling/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Components Reference - Poi Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#components-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Poi Docs" class="md-header__button md-logo" aria-label="Poi Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Poi Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Components Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Poi Docs" class="md-nav__button md-logo" aria-label="Poi Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Poi Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../basic-usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Basic Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Components Reference
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Components Reference
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-layout-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Core Layout Engine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Core Layout Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-box-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Box Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#container-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Container Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#row" class="md-nav__link">
+    <span class="md-ellipsis">
+      Row
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#col" class="md-nav__link">
+    <span class="md-ellipsis">
+      Col
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primitive-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primitive Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Primitive Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cell" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cell
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#column-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Column Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#column-auto-fit-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Column Auto-fit Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../styling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Styling & Comments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-sheet Workbooks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced Features
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-layout-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Core Layout Engine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Core Layout Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-box-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Box Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#container-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Container Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#row" class="md-nav__link">
+    <span class="md-ellipsis">
+      Row
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#col" class="md-nav__link">
+    <span class="md-ellipsis">
+      Col
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primitive-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primitive Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Primitive Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cell" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cell
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#column-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Column Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#column-auto-fit-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Column Auto-fit Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="components-reference">Components Reference</h1>
+<p>Poi provides a declarative layout engine based on a node tree. Every visible element on the sheet is represented by a <code>Box</code> subclass.</p>
+<hr />
+<h2 id="the-core-layout-engine">The Core Layout Engine</h2>
+<p>All layout primitives inherit from the base <code>Box</code> class. The layout engine is based on nested container components (<code>Row</code> and <code>Col</code>) that automatically calculate positions, margins, and merging (rowspan/colspan) for all child cells.</p>
+<h3 id="common-box-parameters">Common Box Parameters</h3>
+<p>Every <code>Box</code> (including container and primitive nodes) supports the following layout parameters:</p>
+<ul>
+<li><code>rowspan</code> (<code>int | None</code>): Number of rows the cell or container spans. If omitted, it's calculated automatically based on contents.</li>
+<li><code>colspan</code> (<code>int | None</code>): Number of columns the cell or container spans. If omitted, calculated automatically.</li>
+<li><code>offset</code> (<code>int</code>): Indentation (spacing) relative to the direction of layout. Defaults to <code>0</code>.</li>
+<li><code>grow</code> (<code>bool</code>): If <code>True</code>, instructs this element to fill all remaining horizontal or vertical space within its parent. Defaults to <code>False</code>.</li>
+</ul>
+<hr />
+<h2 id="container-components">Container Components</h2>
+<p>Containers hold and lay out other child components. They automatically handle spacing, alignment, and coordinate math.</p>
+<h3 id="row"><code>Row</code></h3>
+<p>A <code>Row</code> is a horizontal container that lays out its children left-to-right.</p>
+<ul>
+<li><strong>Children</strong>: Lays out a list of child boxes horizontally.</li>
+<li><strong>Auto-span</strong>: If a child does not have a <code>rowspan</code> specified, it automatically inherits the <code>rowspan</code> of the parent <code>Row</code>.</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">poi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sheet</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span> <span class="n">Cell</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">sheet</span> <span class="o">=</span> <span class="n">Sheet</span><span class="p">(</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">root</span><span class="o">=</span><span class="n">Row</span><span class="p">(</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="n">rowspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># All children inherit a rowspan of 2</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            <span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;First Cell&quot;</span><span class="p">,</span> <span class="n">colspan</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>            <span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;Second Cell&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># Offset leaves 1 column empty</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="p">]</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="col"><code>Col</code></h3>
+<p>A <code>Col</code> is a vertical container that lays out its children top-to-bottom.</p>
+<ul>
+<li><strong>Children</strong>: Lays out a list of child boxes vertically.</li>
+<li><strong>Auto-span</strong>: If a child does not have a <code>colspan</code> specified, it automatically inherits the <code>colspan</code> of the parent <code>Col</code>.</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">poi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sheet</span><span class="p">,</span> <span class="n">Col</span><span class="p">,</span> <span class="n">Cell</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">sheet</span> <span class="o">=</span> <span class="n">Sheet</span><span class="p">(</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">root</span><span class="o">=</span><span class="n">Col</span><span class="p">(</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="n">colspan</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># All children inherit a colspan of 3</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            <span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;Header Line&quot;</span><span class="p">),</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            <span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;Body Line&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># Offset leaves 1 row empty</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="p">]</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="p">)</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="primitive-components">Primitive Components</h2>
+<p>Primitive nodes contain the actual content (data, images) written to the Excel file.</p>
+<h3 id="cell"><code>Cell</code></h3>
+<p>A <code>Cell</code> represents a single rectangular merged region containing a specific value.</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><code>value</code> (<code>CellValue</code>): The value of the cell. Supports <code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code>, <code>datetime</code>, <code>date</code>, <code>time</code>, or <code>None</code>.</li>
+<li><code>width</code> (<code>int | None</code>): If set, explicitly configures the width of the column(s) this cell resides in.</li>
+<li><code>height</code> (<code>int | None</code>): If set, explicitly configures the height of the row this cell resides in.</li>
+<li><code>comment</code> (<code>str | None</code>): Add an Excel cell comment/annotation.</li>
+<li><code>comment_options</code> (<code>CommentOptions | None</code>): Configure comment layout and style (see <a href="../styling/">Styling Guide</a>).</li>
+<li><code>**kwargs</code>: Any formatting options from <code>CellStyle</code> (e.g. <code>bg_color</code>, <code>bold</code>, <code>align</code>, see <a href="../styling/">Styling Guide</a>).</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;Total:&quot;</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bg_color</span><span class="o">=</span><span class="s2">&quot;#E0E0E0&quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Calculated automatically&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="table"><code>Table</code></h3>
+<p>A <code>Table</code> is a high-level component that automatically renders dynamic lists of objects or dictionaries with structured columns, headers, formatting, and dynamic conditional styles.</p>
+<h4 id="parameters_1">Parameters</h4>
+<ul>
+<li><code>data</code> (<code>Collection[T]</code>): List of objects (e.g., namedtuples, dicts, dataclasses).</li>
+<li><code>columns</code> (<code>Collection[ColumnConfig]</code>): Column definitions (see below).</li>
+<li><code>col_width</code> (<code>int | Literal["auto"] | None</code>): Standard column width for table columns. Defaults to <code>15</code>. Set to <code>"auto"</code> for automatic width adjustment.</li>
+<li><code>row_height</code> (<code>RowHeightCallback[T] | int | None</code>): Height of rows in the table. Can be an integer or a callback function taking <code>(record, index)</code> for dynamic height.</li>
+<li><code>cell_style</code> (<code>dict[str, RenderFunction[T]] | str | None</code>): CSS-like dynamic formatting mapping conditional functions to styles (see <a href="../styling/">Styling Guide</a>).</li>
+<li><code>date_format</code> (<code>str | None</code>): Number format pattern for <code>date</code> types (defaults to <code>yyyy-mm-dd</code>).</li>
+<li><code>datetime_format</code> (<code>str | None</code>): Number format pattern for <code>datetime</code> types (defaults to <code>yyyy-mm-dd hh:mm:ss</code>).</li>
+<li><code>time_format</code> (<code>str | None</code>): Number format pattern for <code>time</code> types (defaults to <code>hh:mm:ss</code>).</li>
+<li><code>**kwargs</code>: Styles applied to the entire table (like <code>border</code>).</li>
+</ul>
+<h4 id="column-configurations">Column Configurations</h4>
+<p>Columns can be declared using two formats:
+1. <strong>Tuple format</strong>: <code>(attribute_name, column_title)</code>. A quick shorthand for displaying attributes directly.
+2. <strong>Dictionary format</strong>: Allows extensive customization:
+    - <code>"title"</code> (<code>str</code>): The display header of the column (required).
+    - <code>"attr"</code> (<code>str</code>): The attribute or nested dictionary key path to extract from data. Supports optional chaining (e.g., <code>order?.user?.name</code>).
+    - <code>"render"</code> (<code>Callable</code>): A custom rendering function taking <code>(record, column)</code> to dynamically compute values.
+    - <code>"width"</code> (<code>int | Literal["auto"] | None</code>): Specific column width.
+    - <code>"type"</code> (<code>Literal["image", "text"]</code>): Set to <code>"image"</code> if rendering images.
+    - <code>"options"</code> (<code>ImageOptions</code>): Options for images (scaling, offset).
+    - <code>"format"</code> (<code>CellStyle</code>): Standard styling dictionary applied to cells in this column.
+    - <code>"title_comment"</code> (<code>str</code>): Comment added to the table header.
+    - <code>"title_comment_options"</code> (<code>CommentOptions</code>): Header comment options.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="c1"># Tuple shorthand</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">),</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="c1"># Advanced dictionary</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="p">{</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="s2">&quot;attr&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Product Name&quot;</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="s2">&quot;title_comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Official display name&quot;</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="p">},</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="c1"># Custom rendering callback</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="p">{</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Revenue&quot;</span><span class="p">,</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="s2">&quot;render&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">qty</span> <span class="o">*</span> <span class="n">r</span><span class="o">.</span><span class="n">price</span><span class="p">,</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;num_format&quot;</span><span class="p">:</span> <span class="s2">&quot;$#,##0.00&quot;</span><span class="p">}</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    <span class="p">}</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="p">]</span>
+</span></code></pre></div>
+<h4 id="column-auto-fit-features">Column Auto-fit Features</h4>
+<p>Setting <code>width: "auto"</code> on specific columns, or <code>col_width="auto"</code> table-wide, enables dynamic auto-fitting:
+- It scans all values in the column, including the title header, to find the longest string representation.
+- CJK (Chinese, Japanese, Korean) characters are counted as double-width (2) for accurate sizing in Excel.
+- Applies optimal column width with comfortable padding automatically, avoiding text clipping or <code>###</code> display issues.</p>
+<hr />
+<h3 id="image"><code>Image</code></h3>
+<p>Renders an image from a local path.</p>
+<h4 id="parameters_2">Parameters</h4>
+<ul>
+<li><code>filename</code> (<code>str</code>): Local system path to the image file.</li>
+<li><code>options</code> (<code>ImageOptions | None</code>): Configure position, scaling, and tooltips:<ul>
+<li><code>x_scale</code> (<code>float</code>): Horizontal scaling factor (e.g., <code>0.5</code>).</li>
+<li><code>y_scale</code> (<code>float</code>): Vertical scaling factor (e.g., <code>0.5</code>).</li>
+<li><code>x_offset</code> (<code>int</code>): Horizontal pixel offset.</li>
+<li><code>y_offset</code> (<code>int</code>): Vertical pixel offset.</li>
+<li><code>object_position</code> (<code>int</code>): Control image positioning relative to cells (1 = Move and size with cells, 2 = Move but don't size, 3 = Don't move or size).</li>
+<li><code>url</code> (<code>str</code>): Hyperlink attached to the image.</li>
+<li><code>tip</code> (<code>str</code>): Hover tooltip text.</li>
+<li><code>description</code> (<code>str</code>): Alternative text description for accessibility.</li>
+</ul>
+</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">poi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sheet</span><span class="p">,</span> <span class="n">Col</span><span class="p">,</span> <span class="n">Image</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">sheet</span> <span class="o">=</span> <span class="n">Sheet</span><span class="p">(</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">root</span><span class="o">=</span><span class="n">Col</span><span class="p">(</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>            <span class="n">Image</span><span class="p">(</span><span class="s2">&quot;assets/logo.png&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x_scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;y_scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="p">]</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="p">)</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">)</span>
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -2,6 +2,9 @@ site_name: Poi Docs
 nav:
     - Introduction: index.md
     - Basic Usage: basic-usage.md
+    - Components Reference: components.md
+    - Styling & Comments: styling.md
+    - Multi-sheet Workbooks: multi-sheet.md
     - Advanced Features: advanced.md
 
 theme: material

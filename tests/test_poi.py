@@ -3,8 +3,7 @@ import os
 from pathlib import Path
 from typing import NamedTuple
 
-from poi import Cell, Col, Row, Sheet, Table
-from poi.nodes import Image
+from poi import Cell, Col, Image, Row, Sheet, Table
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
@@ -317,3 +316,22 @@ def test_image(pytestconfig):
         sheet.write("tests/__snapshots__/image.xlsx")
     else:
         assert_match_snapshot(sheet, "image.xlsx")
+
+
+def test_dynamic_table_style_numeric(pytestconfig):
+    data = [{"name": "name 1", "price": 10}, {"name": "name 2", "price": 20}]
+    columns = [("name", "Name"), ("price", "Price")]
+    sheet = Sheet(
+        root=Table(
+            data=data,
+            columns=columns,
+            cell_style={
+                (
+                    "border: 2; pattern: 1; bold: true; italic: false; "
+                    "rotation: 90; indent: 2; font_color: red; bg_color: #E2EFDA"
+                ): lambda r, col: r["price"] > 15
+            },
+        )
+    )
+    res = sheet.write_to_bytes_io()
+    assert res is not None

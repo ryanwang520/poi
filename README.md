@@ -2,9 +2,37 @@
 
 ![CI](https://github.com/ryanwang520/poi/actions/workflows/tests.yaml/badge.svg)
 
-## Why Poi?
+**Poi** is a declarative, node-based layout engine for Python that makes generating complex, beautifully designed Excel spreadsheets a breeze. Instead of calculating coordinates, cells, rows, and spans manually, you define your spreadsheet as a nesting-friendly tree of components—just like React or HTML—and let the layout engine handle the math.
 
-Creating Excel files programmatically has always been a chore. Current libraries offer limited flexibility, especially when you need more than a basic table. That's where Poi comes in, offering you a simple, intuitive, yet powerful DSL to make Excel files exactly the way you want them.
+### ❓ Why the name "Poi"?
+In Java, [Apache POI](https://poi.apache.org/) is the legendary standard library for working with Microsoft Office files. Its name originally stood for *"Poor Obfuscation Implementation"* (a tongue-in-cheek reference to Microsoft's binary file formats). 
+
+**Poi for Python** inherits that spirit—making Excel generation dead simple—but elevates it with a modern, declarative, CSS-like component layout system that has never existed in the Python ecosystem before.
+
+### ⚡ When is Poi Indispensable?
+You should use **Poi** if you are building:
+* 📊 **Complex Dashboard Reports**: Reports with non-tabular headers, KPI summaries, and detailed tables side-by-side or stacked vertically on a single sheet.
+* 🎨 **Designer-grade Spreadsheets**: Spreadsheets requiring pixel-perfect column auto-fitting, elegant borders, solid color fills, and conditional highlights.
+* 💬 **Interactive Reports**: Sheets that require custom cell/header tooltips (comments) to explain calculations to business users.
+* 📂 **Multi-sheet Books**: Grouping disparate dashboards and sales data tables across multiple worksheet tabs seamlessly.
+
+---
+
+### 📊 How Poi Compares (vs xlcompose / xltpl / pandas)
+
+| Feature / Dimension | 🎨 **Poi** | 🐼 **pandas** | 📄 **xltpl** | 📐 **xlcompose** |
+| :--- | :--- | :--- | :--- | :--- |
+| **Core Philosophy** | **Declarative Node-Tree (React-like)** | Flat Dataframe Export | Excel Template-based | Layout Engine |
+| **Complex Layouts** (nested containers, KPI cards + tables) | **Perfect (Automatic `Row`/`Col` nesting)** | Very Hard (Manual cells/offsets) | Hard (Rigid template structure) | Good (Flow-based layouts) |
+| **Coordinate Math** (rows/cols index, rowspan/colspan) | **100% Automated** | Manual / Imperative | Rigid / Template-bound | Semi-automated |
+| **Column Auto-fit** (CJK double-width & padding support) | **Smart & Native (`col_width="auto"`)** | Manual (`set_column`) | Rigid / Template-bound | Lacking / Inaccurate |
+| **Styling & Highlights** | **CSS-like & Dynamic Lambdas** | Verbose Styler API | Pre-styled in Template | Object-oriented |
+| **Cell / Header Comments** | **Interactive Tooltips Support** | No | No | No |
+| **Multi-sheet Books** | **Yes (`Book` API)** | Yes (`ExcelWriter`) | Yes | Yes |
+| **Maintained Status** | **Active & Modern** | Active (Not layout-focused) | Legacy / Template-only | Inactive |
+
+---
+
 
 
 

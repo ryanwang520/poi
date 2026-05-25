@@ -247,13 +247,22 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
         for i, item in enumerate(self.data):
 
             def format_from_style(style_css: str) -> Dict[str, Any]:
-                rv = {}
+                rv: Dict[str, Any] = {}
                 for style in style_css.split(";"):
                     style = style.strip()
                     if style == "":
                         continue
                     k, v = re.split(r"\s*:\s*", style)
-                    rv[k] = v
+                    if v.lower() == "true":
+                        rv[k] = True
+                    elif v.lower() == "false":
+                        rv[k] = False
+                    elif re.match(r"^\d+$", v):
+                        rv[k] = int(v)
+                    elif re.match(r"^\d+\.\d+$", v):
+                        rv[k] = float(v)
+                    else:
+                        rv[k] = v
                 return rv
 
             for j, column in enumerate(self.columns):

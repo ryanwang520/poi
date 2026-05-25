@@ -66,18 +66,16 @@ dashboard_sheet = Sheet(
             Row(
                 colspan=4,
                 children=[
-                    Cell("Total Q2 Revenue:", bold=True, offset=1),
+                    Cell("Total Q2 Revenue:", bold=True, offset=1, height=25),
                     Cell(73500.25, num_format="$#,##0.00", bold=True, bg_color="#E2EFDA")
-                ],
-                height=25
+                ]
             ),
             Row(
                 colspan=4,
                 children=[
-                    Cell("Quarter Status:", bold=True, offset=1),
+                    Cell("Quarter Status:", bold=True, offset=1, height=25),
                     Cell("ON TRACK", bold=True, font_color="#385723", bg_color="#E2EFDA", align="center")
-                ],
-                height=25
+                ]
             )
         ]
     )

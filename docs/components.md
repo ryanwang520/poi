@@ -155,8 +155,10 @@ Renders an image from a local path.
     - `y_scale` (`float`): Vertical scaling factor (e.g., `0.5`).
     - `x_offset` (`int`): Horizontal pixel offset.
     - `y_offset` (`int`): Vertical pixel offset.
+    - `object_position` (`int`): Control image positioning relative to cells (1 = Move and size with cells, 2 = Move but don't size, 3 = Don't move or size).
     - `url` (`str`): Hyperlink attached to the image.
     - `tip` (`str`): Hover tooltip text.
+    - `description` (`str`): Alternative text description for accessibility.
 
 ```python
 from poi import Sheet, Col, Image

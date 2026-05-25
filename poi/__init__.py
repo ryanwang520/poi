@@ -14,6 +14,7 @@ from .nodes import (
     ColumnDict,
     ColumnTuple,
     CommentOptions,
+    Image,
     ImageOptions,
     Row,
     Table,
@@ -33,6 +34,7 @@ __all__ = [
     "Col",
     "Row",
     "Table",
+    "Image",
     "BytesIOWorkBook",
     # Type definitions for enhanced typing
     "CellValue",

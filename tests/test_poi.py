@@ -3,8 +3,7 @@ import os
 from pathlib import Path
 from typing import NamedTuple
 
-from poi import Cell, Col, Row, Sheet, Table
-from poi.nodes import Image
+from poi import Cell, Col, Image, Row, Sheet, Table
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):

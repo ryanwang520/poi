@@ -354,3 +354,81 @@ def test_autofit_header_comments(pytestconfig):
         sheet.write("tests/__snapshots__/autofit_header_comments.xlsx")
     else:
         assert_match_snapshot(sheet, "autofit_header_comments.xlsx")
+
+
+def test_autofit_table_level_format():
+    import xlsxwriter
+
+    class Item(NamedTuple):
+        value: float
+
+    data = [
+        Item(value=1234567.89),
+    ]
+
+    columns = [
+        {"attr": "value", "title": "Val", "width": "auto"},
+    ]
+
+    # Set table-level num_format
+    table = Table(
+        data=data,
+        columns=columns,
+        num_format="$#,##0.00",
+    )
+
+    workbook = xlsxwriter.Workbook()
+    worksheet = workbook.add_worksheet()
+
+    Sheet.attach_to_exist_worksheet(workbook, worksheet, table)
+
+    # 1234567.89 formatted as "$#,##0.00" is "$1,234,567.89" (13 chars)
+    # Plus padding of 3 = 16
+    assert worksheet.col_info[0][0] == 16
+
+
+def test_autofit_edge_cases():
+    import xlsxwriter
+
+    class Item(NamedTuple):
+        first_name: str
+        last_name: str
+        logo_path: str
+
+    data = [
+        Item(first_name="Jane", last_name="Doe", logo_path="logo.png"),
+        Item(first_name="Haowei", last_name="Wang", logo_path="logo.png"),
+    ]
+
+    columns = [
+        # Custom render function combining first and last name
+        {
+            "title": "Full Name",
+            "width": "auto",
+            "render": lambda item, col: f"{item.first_name} {item.last_name}",
+        },
+        # Image column with auto-width (should fallback to title width)
+        {
+            "attr": "logo_path",
+            "title": "Company Logo Header",
+            "width": "auto",
+            "type": "image",
+        },
+    ]
+
+    workbook = xlsxwriter.Workbook()
+    worksheet = workbook.add_worksheet()
+    # Mock insert_image to prevent file not found errors for "logo.png"
+    worksheet.insert_image = lambda *args, **kwargs: None
+
+    table = Table(data=data, columns=columns)
+    Sheet.attach_to_exist_worksheet(workbook, worksheet, table)
+
+    # Column 0: title "Full Name" (9 chars), values "Jane Doe" (8 chars),
+    # "Haowei Wang" (11 chars).
+    # Max auto_w is 11. Final width is max(11 + 3, 10) = 14.
+    assert worksheet.col_info[0][0] == 14
+
+    # Column 1: image column, title "Company Logo Header" (19 chars).
+    # Max auto_w is 19. Final width is max(19 + 3, 10) = 22.
+    assert worksheet.col_info[1][0] == 22

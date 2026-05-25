@@ -287,15 +287,16 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                         if column.format:
                             fmt.update(column.format)
 
+                        merged_fmt = {**self.cell_format, **fmt}
                         current_width = column_widths[j]
                         if current_width is not None:
-                            val_width = get_string_width(val, fmt.get("num_format"))
+                            val_width = get_string_width(
+                                val, merged_fmt.get("num_format")
+                            )
                             if val_width > current_width:
                                 column_widths[j] = val_width
 
-                        writer.write(
-                            row + i + 1, col + j, val, {**self.cell_format, **fmt}
-                        )
+                        writer.write(row + i + 1, col + j, val, merged_fmt)
 
         for j, auto_w in enumerate(column_widths):
             if auto_w is not None:

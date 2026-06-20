@@ -4,16 +4,36 @@ import unicodedata
 from functools import singledispatch
 from inspect import signature
 from typing import Any, Callable, Dict, List, Optional, Union
+from weakref import WeakKeyDictionary
 
 from ..nodes import Cell, Col, Image, Row, Table
 from ..utils import get_obj_attr
 from ..writer import Writer
 
+_SIG_PARAM_COUNT: "WeakKeyDictionary[Callable[..., Any], int]" = WeakKeyDictionary()
+
+
+def _param_count(fn: Callable[..., Any]) -> int:
+    """Return the number of parameters of ``fn``, caching the (expensive)
+    ``inspect.signature`` introspection per function object.
+
+    The cache uses weak references so that entries disappear once the callable
+    is garbage-collected, avoiding unbounded growth in long-running processes
+    that build fresh lambdas per request.
+    """
+    try:
+        n = _SIG_PARAM_COUNT.get(fn)
+    except TypeError:
+        # Not weak-referenceable (e.g. some builtins); skip caching.
+        return len(signature(fn).parameters)
+    if n is None:
+        n = len(signature(fn).parameters)
+        _SIG_PARAM_COUNT[fn] = n
+    return n
+
 
 def call_by_sig(fn: Callable[..., Any], *args: Any) -> Any:
-    sig = signature(fn)
-    arg_length = len(sig.parameters)
-    return fn(*args[:arg_length])
+    return fn(*args[: _param_count(fn)])
 
 
 def format_excel_date(dt: datetime.datetime, excel_fmt: str) -> str:
@@ -185,17 +205,52 @@ def get_string_width(val: Any, num_format: Optional[str] = None) -> int:
             s = str(val)
     else:
         s = str(val)
+    # Fast path: ASCII text has no fullwidth / wide characters, so its display
+    # width equals its length.  This avoids a per-character unicodedata lookup
+    # for the overwhelmingly common case.
+    if s.isascii():
+        return len(s)
     # Count fullwidth / wide (CJK) characters as 2, others as 1.
     return sum(2 if unicodedata.east_asian_width(c) in ("F", "W") else 1 for c in s)
+
+
+_STYLE_SPLIT_RX = re.compile(r"\s*:\s*")
+_STYLE_INT_RX = re.compile(r"^\d+$")
+_STYLE_FLOAT_RX = re.compile(r"^\d+\.\d+$")
+
+
+def format_from_style(style_css: str) -> Dict[str, Any]:
+    rv: Dict[str, Any] = {}
+    for style in style_css.split(";"):
+        style = style.strip()
+        if style == "":
+            continue
+        k, v = _STYLE_SPLIT_RX.split(style)
+        vl = v.lower()
+        if vl == "true":
+            rv[k] = True
+        elif vl == "false":
+            rv[k] = False
+        elif _STYLE_INT_RX.match(v):
+            rv[k] = int(v)
+        elif _STYLE_FLOAT_RX.match(v):
+            rv[k] = float(v)
+        else:
+            rv[k] = v
+    return rv
 
 
 def writer_visitor(writer: Writer, fast: bool = False) -> Any:
     EMPTY_VALUES = (None, "")
 
-    def should_write(value: object) -> bool:
-        if not fast:
+    if fast:
+
+        def should_write(value: object) -> bool:
+            return value not in EMPTY_VALUES
+    else:
+
+        def should_write(value: object) -> bool:
             return True
-        return value not in EMPTY_VALUES
 
     @singledispatch
     def visitor(_: Any) -> None:
@@ -214,103 +269,120 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
     @visitor.register
     def _(self: Table) -> None:  # type: ignore
         row, col = self.row, self.col
-        for i in range(len(self.data) + 1):
-            height = None
-            if self.row_height and i >= 1:
-                if isinstance(self.row_height, int):
-                    height = self.row_height
-                else:
-                    height = call_by_sig(self.row_height, self.data[i - 1], i - 1)  # type: ignore
-            if height:
-                writer.worksheet.set_row(self.row + i, height)
+        data = self.data
+        columns = self.columns
+        n_cols = len(columns)
+        cell_format = self.cell_format
+        worksheet = writer.worksheet
+        write = writer.write
+        insert_image = writer.insert_image
+
+        row_height = self.row_height
+        if row_height:
+            if isinstance(row_height, int):
+                for i in range(1, len(data) + 1):
+                    worksheet.set_row(row + i, row_height)
+            else:
+                for i in range(1, len(data) + 1):
+                    height = call_by_sig(row_height, data[i - 1], i - 1)  # type: ignore
+                    if height:
+                        worksheet.set_row(row + i, height)
 
         column_widths: List[Optional[int]] = []
-        for i, column in enumerate(self.columns):
+        for i, column in enumerate(columns):
             width = column.width or self.col_width
             if width == "auto":
                 column_widths.append(get_string_width(column.title))
             else:
                 column_widths.append(None)
                 if width:
-                    writer.worksheet.set_column(self.col + i, self.col + i, width)
+                    worksheet.set_column(col + i, col + i, width)
 
-        for i, column in enumerate(self.columns):
+        for i, column in enumerate(columns):
             if should_write(column.title):
-                writer.write(row, col + i, column.title, self.cell_format)
+                write(row, col + i, column.title, cell_format)
                 # Write comment for header if present
                 if column.title_comment:
                     comment_opts = column.title_comment_options or {}
-                    writer.worksheet.write_comment(
+                    worksheet.write_comment(
                         row, col + i, column.title_comment, comment_opts
                     )
 
-        for i, item in enumerate(self.data):
+        # Pre-parse the cell styles once instead of for every cell.
+        cell_style = self.cell_style
+        static_style_fmt: Optional[Dict[str, Any]] = None
+        conditional_styles: List[Any] = []
+        if isinstance(cell_style, str):
+            static_style_fmt = format_from_style(cell_style)
+        else:
+            conditional_styles = [
+                (condition, format_from_style(styles))
+                for styles, condition in cell_style.items()
+            ]
 
-            def format_from_style(style_css: str) -> Dict[str, Any]:
-                rv: Dict[str, Any] = {}
-                for style in style_css.split(";"):
-                    style = style.strip()
-                    if style == "":
-                        continue
-                    k, v = re.split(r"\s*:\s*", style)
-                    if v.lower() == "true":
-                        rv[k] = True
-                    elif v.lower() == "false":
-                        rv[k] = False
-                    elif re.match(r"^\d+$", v):
-                        rv[k] = int(v)
-                    elif re.match(r"^\d+\.\d+$", v):
-                        rv[k] = float(v)
-                    else:
-                        rv[k] = v
-                return rv
+        # Hoist per-column attributes out of the row loop.
+        col_attrs = [c.attr for c in columns]
+        col_renders = [c.render for c in columns]
+        col_types = [c.type for c in columns]
+        col_options = [c.options for c in columns]
+        col_formats = [c.format for c in columns]
 
-            for j, column in enumerate(self.columns):
-                if column.attr:
-                    val = get_obj_attr(item, column.attr)
+        datetime_fmt = self.datetime_format or "yyyy-mm-dd hh:mm:ss"
+        date_fmt = self.date_format or "yyyy-mm-dd"
+        time_fmt = self.time_format or "hh:mm:ss"
+
+        for i, item in enumerate(data):
+            target_row = row + i + 1
+            for j in range(n_cols):
+                attr = col_attrs[j]
+                if attr:
+                    val = get_obj_attr(item, attr)
                 else:
-                    assert column.render
-                    val = call_by_sig(column.render, item, column)
+                    render = col_renders[j]
+                    assert render
+                    val = call_by_sig(render, item, columns[j])
 
-                if column.type == "image":
-                    writer.insert_image(row + i + 1, col + j, val, column.options)
-                else:
-                    if should_write(val):
-                        fmt = {}
-                        if isinstance(self.cell_style, str):
-                            fmt.update(format_from_style(self.cell_style))
+                if col_types[j] == "image":
+                    insert_image(target_row, col + j, val, col_options[j])
+                    continue
 
-                        else:
-                            for styles, condition in self.cell_style.items():
-                                if call_by_sig(condition, item, column):
-                                    fmt.update(format_from_style(styles))
-                        if isinstance(val, datetime.datetime):
-                            fmt["num_format"] = (
-                                self.datetime_format or "yyyy-mm-dd hh:mm:ss"
-                            )
-                        if isinstance(val, datetime.date):
-                            fmt["num_format"] = self.date_format or "yyyy-mm-dd"
-                        if isinstance(val, datetime.time):
-                            fmt["num_format"] = self.time_format or "hh:mm:ss"
+                if not should_write(val):
+                    continue
 
-                        if column.format:
-                            fmt.update(column.format)
+                # Build the per-cell format with precedence (low -> high):
+                # cell_format < cell_style < datetime < column.format
+                merged_fmt: Dict[str, Any] = dict(cell_format)
+                if static_style_fmt is not None:
+                    merged_fmt.update(static_style_fmt)
+                elif conditional_styles:
+                    column = columns[j]
+                    for condition, parsed in conditional_styles:
+                        if call_by_sig(condition, item, column):
+                            merged_fmt.update(parsed)
 
-                        merged_fmt = {**self.cell_format, **fmt}
-                        current_width = column_widths[j]
-                        if current_width is not None:
-                            val_width = get_string_width(
-                                val, merged_fmt.get("num_format")
-                            )
-                            if val_width > current_width:
-                                column_widths[j] = val_width
+                if isinstance(val, datetime.datetime):
+                    merged_fmt["num_format"] = datetime_fmt
+                if isinstance(val, datetime.date):
+                    merged_fmt["num_format"] = date_fmt
+                if isinstance(val, datetime.time):
+                    merged_fmt["num_format"] = time_fmt
 
-                        writer.write(row + i + 1, col + j, val, merged_fmt)
+                col_fmt = col_formats[j]
+                if col_fmt:
+                    merged_fmt.update(col_fmt)
+
+                current_width = column_widths[j]
+                if current_width is not None:
+                    val_width = get_string_width(val, merged_fmt.get("num_format"))
+                    if val_width > current_width:
+                        column_widths[j] = val_width
+
+                write(target_row, col + j, val, merged_fmt)
 
         for j, auto_w in enumerate(column_widths):
             if auto_w is not None:
                 final_width = max(auto_w + 3, 10)
-                writer.worksheet.set_column(col + j, col + j, final_width)
+                worksheet.set_column(col + j, col + j, final_width)
 
     @visitor.register
     def _(self: Image) -> None:

@@ -37,6 +37,12 @@ def get_obj_attr(obj: object, field: str) -> Any:
     None
 
     """
+    # Fast path: a plain field with no nested access ('.') is by far the most
+    # common case in table rendering and avoids the regex scan below.
+    if "." not in field:
+        if isinstance(obj, dict):
+            return obj[field]
+        return getattr(obj, field)
     index = 0
     for match in p.finditer(field):
         start, end, s = match.start(), match.end(), match.group()

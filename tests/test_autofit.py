@@ -1,7 +1,7 @@
 import datetime
 import os
 from pathlib import Path
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 from poi import Sheet, Table
 from poi.visitors.writer import get_string_width
@@ -186,8 +186,8 @@ def test_autofit_mixed_widths(pytestconfig):
 def test_autofit_empty_and_nulls(pytestconfig):
     class EmptyItem(NamedTuple):
         name: str
-        value: Optional[float]
-        notes: Optional[str]
+        value: float | None
+        notes: str | None
 
     # Test with actual null/None/empty values
     data = [

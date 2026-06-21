@@ -2,21 +2,19 @@ from __future__ import annotations
 
 import logging
 from collections import abc
+from collections.abc import Callable, Collection, Iterable
 from datetime import date, datetime, time
 from typing import (
     Any,
-    Callable,
-    Collection,
     Generic,
-    Iterable,
+    Literal,
     NamedTuple,
+    NotRequired,
     Protocol,
     TypedDict,
     TypeVar,
-    Union,
+    Unpack,
 )
-
-from typing_extensions import Literal, NotRequired, Unpack
 
 logger = logging.getLogger("poi")
 logger.addHandler(logging.NullHandler())
@@ -24,7 +22,7 @@ logger.addHandler(logging.NullHandler())
 # =================== TYPE DEFINITIONS ===================
 
 # Basic type aliases
-CellValue = Union[str, int, float, bool, datetime, date, time, None]
+CellValue = str | int | float | bool | datetime | date | time | None
 Direction = Literal["HORIZONTAL", "VERTICAL"]
 
 # Style and formatting types
@@ -112,13 +110,13 @@ T_contra = TypeVar("T_contra", contravariant=True)
 
 
 # Render function types for column configuration
-RenderFunction = Union[
-    Callable[[], CellValue],
-    Callable[[T_contra], CellValue],  # Simple: lambda record: record.field
-    Callable[
+RenderFunction = (
+    Callable[[], CellValue]
+    | Callable[[T_contra], CellValue]  # Simple: lambda record: record.field
+    | Callable[
         [T_contra, "Column"], CellValue
-    ],  # Advanced: lambda record, column: f"{record.field} ({column.title})"
-]
+    ]  # Advanced: lambda record, column: f"{record.field} ({column.title})"
+)
 
 
 class StyleCondition(Protocol[T_contra]):
@@ -149,7 +147,7 @@ class ColumnDict(TypedDict):
 
 
 ColumnTuple = tuple[str, str]  # (attr, title)
-ColumnConfig = Union[ColumnDict, ColumnTuple]
+ColumnConfig = ColumnDict | ColumnTuple
 
 # Generic type variable with constraint
 T = TypeVar("T")
@@ -252,7 +250,7 @@ class Box:
         def flatten(items: Any) -> Iterable[Any]:
             """Yield items from any nested iterable."""
             for x in items:
-                if isinstance(x, abc.Iterable) and not isinstance(x, (str, bytes)):
+                if isinstance(x, abc.Iterable) and not isinstance(x, str | bytes):
                     yield from flatten(x)
                 else:
                     yield x

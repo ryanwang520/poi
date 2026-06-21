@@ -89,9 +89,9 @@ def test_table(pytestconfig):
             col_width=20,
             row_height=lambda: 100,
             cell_style={
-                "bg_color: yellow; text_wrap: true;": lambda record, col: col.attr
-                == "name"
-                and record.name == "name 1"
+                "bg_color: yellow; text_wrap: true;": lambda record, col: (
+                    col.attr == "name" and record.name == "name 1"
+                )
             },
             date_format="yyyy-mm-dd",
             align="center",

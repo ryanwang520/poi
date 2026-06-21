@@ -82,5 +82,5 @@ Tuple format `("attr", "title")` remains simple without comment support.
 
 - `xlsxwriter` - Core Excel file generation
 - Development: `pytest`, `ruff`, `mypy`, `mkdocs` with Material theme
-- Build system uses `uv_build` backend with Python 3.9+ support
+- Build system uses `uv_build` backend with Python 3.11+ support
 - All tool configurations centralized in `pyproject.toml`

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.11', '3.12', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +42,7 @@ jobs:
       - name: Install uv and set Python version
         uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.9' # Use baseline Python version for building
+          python-version: '3.11' # Use baseline Python version for building
 
       - name: Build the package
         run: uv build

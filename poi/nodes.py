@@ -9,14 +9,15 @@ from typing import (
     Collection,
     Generic,
     Iterable,
+    Literal,
     NamedTuple,
+    NotRequired,
     Protocol,
     TypedDict,
     TypeVar,
     Union,
+    Unpack,
 )
-
-from typing_extensions import Literal, NotRequired, Unpack
 
 logger = logging.getLogger("poi")
 logger.addHandler(logging.NullHandler())

@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://github.com/baoshishu/poi"
 repository = "https://github.com/baoshishu/poi"
 documentation = "https://baoshishu.github.io/poi/"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 
 
@@ -19,10 +19,10 @@ keywords = ["xlsx", "xlswriter", "excel", "declarative"]
 classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "xlsxwriter>=3.2.5",
@@ -36,15 +36,14 @@ build-backend = "uv_build"
 dev = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.14",
-    "mypy>=1.17.1",
+    "mypy>=2.1.0",
     "pytest>=8.4.1",
-    "ruff>=0.12.7",
-    "typing-extensions>=4.14.1",
+    "ruff>=0.15.18",
 ]
 
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = [
@@ -56,7 +55,7 @@ select = [
 ]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 strict = true
 exclude = "tests"
 

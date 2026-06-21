@@ -1,9 +1,22 @@
 import datetime
+import io
 import os
+import zipfile
 from pathlib import Path
 from typing import NamedTuple
 
 from poi import Cell, Col, Image, Row, Sheet, Table
+
+
+def _sheet_xml(sheet: Sheet) -> str:
+    data = sheet.write_to_bytes_io().read()
+    z = zipfile.ZipFile(io.BytesIO(data))
+    xml = z.read("xl/worksheets/sheet1.xml").decode()
+    try:
+        shared = z.read("xl/sharedStrings.xml").decode()
+    except KeyError:
+        shared = ""
+    return xml + shared
 
 
 def assert_match_snapshot(sheet: Sheet, snapshot):
@@ -335,3 +348,39 @@ def test_dynamic_table_style_numeric(pytestconfig):
     )
     res = sheet.write_to_bytes_io()
     assert res is not None
+
+
+def test_large_int_written_as_text():
+    # Integers beyond 2**53 - 1 lose precision when stored as Excel numbers,
+    # so they must be written as text to keep every digit intact.
+    big = 222222222222222222222222222222
+    negative_big = -(2**63)
+    safe = 2**53 - 1  # largest exactly representable integer
+
+    class Record(NamedTuple):
+        value: int
+
+    sheet = Sheet(
+        root=Col(
+            children=[
+                Row(children=[Cell(big), Cell(negative_big), Cell(safe)]),
+                Table(data=[Record(value=big)], columns=[("value", "Value")]),
+            ]
+        )
+    )
+    content = _sheet_xml(sheet)
+
+    # Exact digits preserved, no scientific-notation rounding.
+    assert str(big) in content
+    assert str(negative_big) in content
+    assert "E+" not in content and "e+" not in content
+    # Safe integers stay numeric (not stringified).
+    assert f"<v>{safe}</v>" in content
+
+
+def test_bool_and_float_unaffected_by_large_int_handling():
+    sheet = Sheet(root=Col(children=[Row(children=[Cell(True), Cell(1.5), Cell(42)])]))
+    xml = _sheet_xml(sheet)
+    assert 't="b"' in xml  # bool stays a boolean cell
+    assert "<v>1.5</v>" in xml  # float stays numeric
+    assert "<v>42</v>" in xml  # small int stays numeric

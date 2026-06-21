@@ -11,6 +11,19 @@ from xlsxwriter.worksheet import Worksheet
 
 logger = logging.getLogger(__name__)
 
+# Excel stores numbers as IEEE 754 doubles, so integers outside the range
+# [-(2**53 - 1), 2**53 - 1] cannot be represented exactly and silently lose
+# precision (e.g. 222222222222222222222222222222 -> 2.222222222222222E+29).
+# Write such integers as text instead to preserve every digit.
+MAX_SAFE_INTEGER = 2**53 - 1
+
+
+def _coerce_large_int(value: Any) -> Any:
+    # `type(value) is int` deliberately excludes bool (a subclass of int).
+    if type(value) is int and not -MAX_SAFE_INTEGER <= value <= MAX_SAFE_INTEGER:
+        return str(value)
+    return value
+
 
 class WorkBook(Protocol):
     def add_format(self, format: dict[str, Any]) -> Format: ...
@@ -86,12 +99,18 @@ class Writer:
         return args
 
     def write(self, *args: Any) -> None:
-        args = self._path_args(args)
-        self.worksheet.write(*args)
+        out = list(self._path_args(args))
+        # out: (row, col, value, [format])
+        if len(out) >= 3:
+            out[2] = _coerce_large_int(out[2])
+        self.worksheet.write(*out)
 
     def merge_range(self, *args: Any) -> None:
-        args = self._path_args(args)
-        self.worksheet.merge_range(*args)
+        out = list(self._path_args(args))
+        # out: (first_row, first_col, last_row, last_col, value, [format])
+        if len(out) >= 5:
+            out[4] = _coerce_large_int(out[4])
+        self.worksheet.merge_range(*out)
 
     def insert_image(self, *args: Any) -> None:
         self.worksheet.insert_image(*args)

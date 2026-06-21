@@ -63,7 +63,11 @@ class Writer:
         if not cell_format:
             return self.global_format
         elif isinstance(cell_format, dict):
-            fmt_key = json.dumps(cell_format, sort_keys=True)
+            try:
+                fmt_key: Any = tuple(sorted(cell_format.items()))
+            except TypeError:
+                # Unhashable style values — fall back to a stable string key.
+                fmt_key = json.dumps(cell_format, sort_keys=True)
             fmt = self.formats.get(fmt_key)
             if not fmt:
                 fmt = self.workbook.add_format(

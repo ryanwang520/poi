@@ -1,9 +1,10 @@
 import datetime
 import re
 import unicodedata
+from collections.abc import Callable
 from functools import singledispatch
 from inspect import signature
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 from weakref import WeakKeyDictionary
 
 from ..nodes import Cell, Col, Image, Row, Table
@@ -108,8 +109,8 @@ def format_excel_date(dt: datetime.datetime, excel_fmt: str) -> str:
     return "".join(parts)
 
 
-def format_excel_number(val: Union[float, int], num_format: str) -> str:
-    if not isinstance(val, (int, float)):
+def format_excel_number(val: float | int, num_format: str) -> str:
+    if not isinstance(val, int | float):
         return str(val)
 
     orig_val = val
@@ -169,10 +170,10 @@ def format_excel_number(val: Union[float, int], num_format: str) -> str:
     return res
 
 
-def get_string_width(val: Any, num_format: Optional[str] = None) -> int:
+def get_string_width(val: Any, num_format: str | None = None) -> int:
     if val is None:
         return 0
-    if isinstance(val, (datetime.datetime, datetime.date, datetime.time)):
+    if isinstance(val, datetime.datetime | datetime.date | datetime.time):
         if not num_format:
             if isinstance(val, datetime.datetime):
                 return 19
@@ -198,7 +199,7 @@ def get_string_width(val: Any, num_format: Optional[str] = None) -> int:
                 if isinstance(val, datetime.time):
                     return 8
                 s = str(val)
-    elif isinstance(val, (int, float)) and num_format:
+    elif isinstance(val, int | float) and num_format:
         try:
             s = format_excel_number(val, num_format)
         except Exception:
@@ -219,8 +220,8 @@ _STYLE_INT_RX = re.compile(r"^\d+$")
 _STYLE_FLOAT_RX = re.compile(r"^\d+\.\d+$")
 
 
-def format_from_style(style_css: str) -> Dict[str, Any]:
-    rv: Dict[str, Any] = {}
+def format_from_style(style_css: str) -> dict[str, Any]:
+    rv: dict[str, Any] = {}
     for style in style_css.split(";"):
         style = style.strip()
         if style == "":
@@ -288,7 +289,7 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
                     if height:
                         worksheet.set_row(row + i, height)
 
-        column_widths: List[Optional[int]] = []
+        column_widths: list[int | None] = []
         for i, column in enumerate(columns):
             width = column.width or self.col_width
             if width == "auto":
@@ -310,8 +311,8 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
 
         # Pre-parse the cell styles once instead of for every cell.
         cell_style = self.cell_style
-        static_style_fmt: Optional[Dict[str, Any]] = None
-        conditional_styles: List[Any] = []
+        static_style_fmt: dict[str, Any] | None = None
+        conditional_styles: list[Any] = []
         if isinstance(cell_style, str):
             static_style_fmt = format_from_style(cell_style)
         else:
@@ -351,7 +352,7 @@ def writer_visitor(writer: Writer, fast: bool = False) -> Any:
 
                 # Build the per-cell format with precedence (low -> high):
                 # cell_format < cell_style < datetime < column.format
-                merged_fmt: Dict[str, Any] = dict(cell_format)
+                merged_fmt: dict[str, Any] = dict(cell_format)
                 if static_style_fmt is not None:
                     merged_fmt.update(static_style_fmt)
                 elif conditional_styles:

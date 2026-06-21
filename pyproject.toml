@@ -52,6 +52,8 @@ select = [
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
     "I", # isort
+      "UP", # pyupgrade
+
 ]
 
 [tool.mypy]
